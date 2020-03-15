@@ -21,6 +21,6 @@ func main() {
 	}
 }
 
-func sendUserMessage() (bool, error) {
+func sendUserMessage(username string, message string) (bool, error) {
 
 }

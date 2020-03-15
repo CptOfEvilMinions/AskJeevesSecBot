@@ -1,11 +1,12 @@
 package kafka
 
 import (
-	"fmt"
-	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-func main() {
+// KafkaConsumerInit input:
+// KafkaConsumerInit output:
+func ConsumerInit() (*kafka.Consumer, error) {
 
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": "localhost",
@@ -14,20 +15,55 @@ func main() {
 	})
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	c.SubscribeTopics([]string{"myTopic", "^aRegex.*[Tt]opic"}, nil)
-
-	for {
-		msg, err := c.ReadMessage(-1)
-		if err == nil {
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-		} else {
-			// The client will automatically try to recover from all errors.
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-		}
-	}
-
-	c.Close()
+	return c, err
 }
+
+// KafkaProducerInit input:
+// KafkaProducerInit output:
+func ProducerInit() (*kafka.Producer, error) {
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": "localhost"
+		"client.id": socket.gethostname(),
+		"default.topic.config": kafka.ConfigMap{"acks": "all"}
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	defer p.Close()
+
+	return p, err
+}
+
+
+// ProduceMessagesToTopic input:
+// ProduceMessagesToTopic output:
+// https://docs.confluent.io/current/clients/go.html
+func ProduceMessagesToTopic( p *kafka.Producer, message string, topic, string) (bool, error) {
+	// Push message to Kafka
+	delivery_chan := make(chan kafka.Event, 10000)
+	err := p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: topic, Partition: kafka.PartitionAny},
+		Value: []byte(message)},
+		delivery_chan,
+	)
+
+	e := <-delivery_chan
+	m := e.(*kafka.Message)
+
+
+	if m.TopicPartition.Error != nil 
+		fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+		return false, err
+	} else {
+		fmt.Printf("Delivered message to topic %s [%d] at offset %v\n", *m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+		
+	}
+	close(delivery_chan)
+
+	return true, nil
+	
+} 
