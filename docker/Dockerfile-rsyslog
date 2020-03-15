@@ -1,22 +1,12 @@
-FROM manios/multi-stage-rsyslog:latest as builder
-
 FROM ubuntu:18.04
 
-# Update
-RUN apt-get update -y
-
-#### Add Rsyslog repo ####
-RUN apt-get update -y
-
 #### Install/Setup Ryslog ####
-RUN apt-get install rsyslog rsyslog-kafka libmaxminddb-dev libmaxminddb0 curl unzip -y
-COPY --from=builder /home/devel/proj/rsyslog/plugins/mmdblookup/.libs/mmdblookup.so /usr/lib/x86_64-linux-gnu/rsyslog/mmdblookup.so
-
-#### GeoIP database ####
-RUN curl https://download.db-ip.com/free/dbip-city-lite-2020-03.mmdb.gz --output /tmp/dbip-city-lite.mmdb.gz
-RUN gunzip /tmp/dbip-city-lite.mmdb.gz && mv /tmp/dbip-city-lite.mmdb /etc/rsyslog.d/GeoLite2-City.mmdb
+RUN apt-get update -y
+RUN apt-get install rsyslog rsyslog-kafka -y
 
 #### Copy configs ####
+RUN rm /etc/rsyslog.d/50-default.conf 
+
 # Main rsyslog config
 COPY conf/rsyslog-server/rsyslog.conf /etc/rsyslog.conf
 

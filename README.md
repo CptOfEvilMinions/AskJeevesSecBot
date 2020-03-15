@@ -8,6 +8,15 @@ https://manios.org/2018/08/18/logstash-geoip-json-logs-maxmint-geolite-docker
 ## Init project
 1. `go mod init github.com/CptOfEvilMinions/AskJeevesSecBot`
 
+## Download GeoIP database
+1. Go to https://www.maxmind.com/en/geoip-demo and login
+1. Download GeoLite2-City
+1. Place GeoLite2-City.mmdb in `app/data/GeoLite2-City.mmdb`
+
+## Spin up Docker stack
+1. `docker-compose build`
+1. `docker-compose up -d`
+
 ## References
 * [Rsyslog Expressions](https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html)
 * [Index JSON Messages over Syslog](https://sematext.com/docs/logs/json-messages-over-syslog/)
@@ -19,8 +28,12 @@ https://manios.org/2018/08/18/logstash-geoip-json-logs-maxmint-geolite-docker
 * [Package md5](https://golang.org/pkg/crypto/md5/)
 * [Using Go Modules](https://blog.golang.org/using-go-modules)
 * [Slack API in Go](https://github.com/slack-go/slack)
-* []()
-* []()
+* [Marshal and unMarshal of Struct to JSON in Golang](https://www.restapiexample.com/golang-tutorial/marshal-and-unmarshal-of-struct-data-using-golang/)
+* [Assigning null to JSON fields instead of empty strings](https://stackoverflow.com/questions/31048557/assigning-null-to-json-fields-instead-of-empty-strings)
+* [How convert a string into json or a struct?](https://forum.golangbridge.org/t/how-convert-a-string-into-json-or-a-struct/3457)
+* [Kafka Go Client](https://docs.confluent.io/current/clients/go.html)
+* [package maxminddb](https://pkg.go.dev/github.com/oschwald/maxminddb-golang?tab=doc#example-Reader.Lookup-Interface)
+* [KSQL Problem while - print <topic> from beginning #2386](https://github.com/confluentinc/ksql/issues/2386)
 * []()
 * []()
 * []()
