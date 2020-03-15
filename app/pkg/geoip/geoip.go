@@ -1,6 +1,7 @@
 package geoip
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/oschwald/maxminddb-golang"
@@ -10,9 +11,9 @@ import (
 // IPaddrLocationLookup output: Returns city of the IP address
 func IPaddrLocationLookup(IPaddr string) (string, error) {
 	// Open database
-	db, err := maxminddb.Open("data/GeoLite2-City.mmdb"
+	db, err := maxminddb.Open("data/GeoLite2-City.mmdb")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer db.Close()
 
@@ -23,7 +24,8 @@ func IPaddrLocationLookup(IPaddr string) (string, error) {
 	var record interface{}
 	err = db.Lookup(ip, &record)
 	if err == nil {
-		return record, nil
+		temp := fmt.Sprintf("%v", record)
+		return temp, nil
 	}
-	return nil, err
+	return "", err
 }

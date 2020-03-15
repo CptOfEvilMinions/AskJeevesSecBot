@@ -2,6 +2,7 @@ package hash
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 )
 
@@ -12,6 +13,6 @@ func VpnHash(username string, IPaddr string, location string) string {
 	inputString := fmt.Sprintf("%s,%s,%s", username, IPaddr, location)
 	h := md5.New()
 	h.Write([]byte(inputString))
-	md5Hash := h.Sum(nil
+	md5Hash := hex.EncodeToString(h.Sum(nil))
 	return md5Hash
 }
