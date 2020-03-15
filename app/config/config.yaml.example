@@ -1,10 +1,12 @@
 slack:
   token: "abc123"
 kafka:
-  hostname: "1.1.1.1"
-  groupId: "1"
+  hostname: "kafka"
+  port: 39092
+  groupId: 1
   offset: "earliest"
-  consumer_topic: "vpn_logs_raw"
-  producer_topic: "vpn_logs_enriched"
+  consumer_topic: "vpn-log-raw"
+  producer_topic: "vpn-log-enriched"
+  poll_interval: 3
 maxMind:
   api_key: ""

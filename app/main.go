@@ -42,6 +42,7 @@ func main() {
 	// Iterate throuugh all messages in topic
 	run := true
 	for run {
+		// PollInterval * 1000 for seconds
 		ev := kafkaConsumer.Poll(cfg.Kafka.PollInterval * 1000)
 		switch e := ev.(type) {
 		case *kafka.Message:
@@ -81,9 +82,6 @@ func main() {
 			//continue
 			fmt.Printf("Ignored %v\n", e)
 		}
-
-		// sleep
-		//time.Sleep(3 * time.Second)
 	}
 
 	// Close connection to Kafka
