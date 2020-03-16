@@ -32,6 +32,30 @@ services:
       - kafka
     cpus: 2
     mem_limit: 150M
+
+  ############################################ MySQL ############################################
+  mysql:
+    container_name: askjeevessecbot-mysql
+    restart: unless-stopped
+    image: mysql:5.7
+    environment: 
+      MYSQL_ROOT_PASSWORD: "toor"
+      MYSQL_DATABASE: "askjeevessecbot"
+      MYSQL_USER: "askjeevessecbot"
+      MYSQL_PASSWORD: "changeme"
+      MYSQL_ROOT_HOST: '%'
+    networks:
+      - default
+      - kafka-backend
+    ports:
+      - 3306:3306
+    volumes: 
+      - mysql-db:/var/lib/mysql
+    depends_on:
+      - kafka
+    cpus: 1
+    mem_limit: 150M
+
     
   ############################################ Zookeeper ############################################
   zookeeper:
@@ -129,6 +153,9 @@ services:
     mem_limit: 500M
 
   # ############################################ KSQL REST proxy ############################################
+
+volumes:
+  mysql-db:
 
 networks: 
   kafka-backend:

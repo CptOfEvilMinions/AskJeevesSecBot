@@ -17,6 +17,15 @@ type Config struct {
 		ProducerTopic string `yaml:"producer_topic"`
 		PollInterval  int    `yaml:"poll_interval"`
 	} `yaml:"kafka"`
+
+	MySQL struct {
+		Hostname string `yaml:"hostname"`
+		Port     int    `yaml:"port"`
+		Protocol string `yaml:"protocol"`
+		Database string `yaml:"database"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+	} `yaml:"mysql"`
 }
 
 // NewConfig returns a new decoded Config struct

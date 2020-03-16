@@ -1,21 +1,30 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/geoip"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/hash"
 	myKafka "github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/kafka"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 type VPNdata struct {
-	Username string  `json:"username"`
-	IPaddr   string  `json:"ipaddr"`
-	Location *string `json:"location"`
-	Hash     *string `json:"Hash"`
+	Timestamp     time.Time `json:"@timestamp"`
+	Host          string    `json:"host"`
+	SyslogProgram string    `json:"syslog_program"`
+	Message       string    `json:"message"`
+	Username      string    `json:"username"`
+	SrcIP         string    `json:"src_ip"`
+	Location      uint      `json:"location"`
+	VpnHash       string    `json:"vpn_hash"`
 }
 
 func main() {
@@ -23,6 +32,13 @@ func main() {
 	cfg, err := config.NewConfig("config/config.yaml")
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Init database connection
+	mysqlConnector, err := database.InitMySQLConnector(cfg)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatalln(err)
 	}
 
 	// Init Kafka Consumer
@@ -33,11 +49,11 @@ func main() {
 	}
 
 	// Init Kafka Producer
-	kafkaProducer, err := myKafka.ProducerInit(cfg)
-	if err != nil {
-		fmt.Println(err.Error())
-		log.Fatalln(err)
-	}
+	// kafkaProducer, err := myKafka.ProducerInit(cfg)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// 	log.Fatalln(err)
+	// }
 
 	// Iterate throuugh all messages in topic
 	run := true
@@ -47,28 +63,28 @@ func main() {
 		switch e := ev.(type) {
 		case *kafka.Message:
 			// Print message
-			fmt.Printf("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+			fmt.Printf("\n\n%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
 
-			// Extract JSON data
-			// vpn := new(VPNdata)
+			// Extract JSON string to struct
+			var vpnEntry VPNdata
+			json.Unmarshal([]byte(e.Value), &vpnEntry)
 
-			// if err := json.NewDecoder(vpn).Decode(vpn); err != nil {
-			// 	log.Fatalln(err)
-			// }
-			// if len(t.Error) > 0 {
-			// 	log.Fatalln(t.Error)
-			// }
+			// DEBUG
+			//fmt.Printf("json object:::: %v\n", vpnEntry)
 
 			// Set Location
-			//vpn.Location = geoip.IPaddrLocationLookup(ipAddr)
+			vpnEntry.Location, err = geoip.IPaddrLocationLookup(vpnEntry.SrcIP)
+			if err != nil {
+				fmt.Println(err.Error())
+				log.Fatalln(err)
+			}
 
 			// Set VPN hash
-			// vpn.Hash = hash.VpnHash(vpn.Username, vpn.IPaddr, vpn.Location)
+			vpnEntry.VpnHash = hash.VpnHash(vpnEntry.Username, vpnEntry.SrcIP, vpnEntry.Location)
+			fmt.Printf("VPN hash: %s\n", vpnEntry.VpnHash)
 
-			// vpnJSON, err := json.Marshal(vpn)
-			// if err != nil {
-			// 	log.Fatalln(err.Error)
-			// }
+			// Query database for VPN hash
+			result := database.QueryDoesVpnHashExist(mysqlConnector, vpnEntry.VpnHash)
 
 			// Enrich VPN data - push to Kafka
 			//ProduceMessagesToTopic(kafkaProducer, vpnJson, "vpn-enriched")
@@ -88,5 +104,5 @@ func main() {
 	kafkaConsumer.Close()
 
 	// Wait for message deliveries before shutting down
-	kafkaProducer.Flush(15 * 1000)
+	//kafkaProducer.Flush(15 * 1000)
 }
