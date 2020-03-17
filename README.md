@@ -27,12 +27,8 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 1. `docker-compose up -d`
 
 ## Test setup
-1. `docker exec -it askjeevessecbot-ksql-cli ksql http://ksql-server:8088`
-1. New terminal tab
 1. `docker run -it --net askjeevessecbot_logging-backend ubuntu:18.04 bash`
 1. `logger -n 10.150.100.210 -P 1514 --rfc3164 -t 'openvpn' "1.1.1.1:56555 [spartan2194] Peer Connection Initiated with [AF_INET]1.1.1.1:56555"`
-1. Go back to KSQL tab
-1. `PRINT 'vpn-log-raw' from beginning;`
 
 ## References
 ### Rsyslog
