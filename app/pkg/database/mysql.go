@@ -3,23 +3,13 @@ package database
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
 )
-
-type UserVPNLog struct {
-	gorm.Model
-	Username      string
-	VpnHash       string
-	IPaddr        string
-	Location      string
-	Confirm       bool
-	Count         int
-	LastLoginDate string
-}
 
 // InitMySQLConnector input:
 // InitMySQLConnector output:
@@ -52,7 +42,7 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 	}
 
 	// defer the close till after the main function has finished executing
-	defer db.Close()
+	//defer db.Close()
 
 	// Init schema
 	db.AutoMigrate(&UserVPNLog{})
@@ -60,28 +50,46 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-// Query input:
-// Query ouutput:
-// func Query(db *sql.DB, query) (string, error) {
-// 	results, err := db.Query(query)
-// 	if err != nil {
-// 		panic(err.Error()) // proper error handling instead of panic in your app
-// 		return "", err
-// 	}
-// 	return results, nil
-// }
-
-// QueryDoesVpnHashExist input:
-// QueryDoesVpnHashExist output:
-func QueryDoesVpnHashExist(db *gorm.DB, VpnHash string) bool {
-	// init obj
-	var userVPNLog UserVPNLog
-
-	// Check if returns RecordNotFound error
-	db.Where("VpnHash = ?", VpnHash).First(&userVPNLog).RecordNotFound()
-	if db.Model(&userVPNLog).Related(&VpnHash).RecordNotFound() {
-		return false, nil
+// AddVpnUserEntry input:
+// AddVpnUserEntry output:
+func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string, Location uint) (bool, error) {
+	// Create user VPN entry
+	userVPNLog := UserVPNLog{
+		Username:      Username,
+		VpnHash:       VpnHash,
+		IPaddr:        IPaddr,
+		Location:      Location,
+		Confirm:       false,
+		Count:         1,
+		LastLoginDate: time.Now().Format(time.RFC3339),
 	}
 
+	// Add record to database
+	err := db.Create(&userVPNLog).Error
+	if err != nil {
+		return false, err
+	}
 	return true, nil
+}
+
+// updateUserVPNCounter input:
+// updateUserVPNCounter output:
+func updateUserVPNCounter(db *gorm.DB, userVPNLog UserVPNLog) {
+	db.First(&userVPNLog)
+	userVPNLog.Count++
+	db.Save(&userVPNLog)
+}
+
+// QueryDoesVpnHashExist input: DB connecter and VPnHash
+// QueryDoesVpnHashExist output: If Vpnhash exists return true, else false
+func QueryDoesVpnHashExist(db *gorm.DB, VpnHash string) bool {
+	// init obj
+	userVPNLog := UserVPNLog{}
+
+	// See if VpnHash exists
+	if db.Where("vpn_hash = ?", VpnHash).First(&userVPNLog).RecordNotFound() {
+		return false
+	}
+	updateUserVPNCounter(db, userVPNLog)
+	return true
 }

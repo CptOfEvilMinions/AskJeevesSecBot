@@ -14,7 +14,6 @@ type Config struct {
 		GroupId       int    `yaml:"groupId"`
 		Offset        string `yaml:"offset"`
 		ConsumerTopic string `yaml:"consumer_topic"`
-		ProducerTopic string `yaml:"producer_topic"`
 		PollInterval  int    `yaml:"poll_interval"`
 	} `yaml:"kafka"`
 
@@ -26,6 +25,14 @@ type Config struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"mysql"`
+	RabbitMQ struct {
+		Username     string `yaml:"username"`
+		Password     string `yaml:"password"`
+		Hostname     string `yaml:"hostname"`
+		Port         int    `yaml:"port"`
+		QueueName    string `yaml:"queue_name"`
+		PollInterval int    `yaml:"poll_interval"`
+	} `yaml:"rabbitMQ"`
 }
 
 // NewConfig returns a new decoded Config struct

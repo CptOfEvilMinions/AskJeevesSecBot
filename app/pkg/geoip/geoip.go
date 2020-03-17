@@ -48,6 +48,7 @@ func IPaddrLocationLookup(IPaddr string) (uint, error) {
 	var record GeoIPCity
 	err = db.Lookup(ip, &record)
 	if err == nil {
+		fmt.Println(record)
 		temp := fmt.Sprintf("%s, %s, %s, %d", record.Country.IsoCode, record.Continent.Code, record.Subdivisions[0].IsoCode, record.Subdivisions[0].GeoNameID)
 		fmt.Println(temp)
 		return record.Subdivisions[0].GeoNameID, nil

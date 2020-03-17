@@ -5,27 +5,17 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/model"
+
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/brokers"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/geoip"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/hash"
-	myKafka "github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/kafka"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
-
-type VPNdata struct {
-	Timestamp     time.Time `json:"@timestamp"`
-	Host          string    `json:"host"`
-	SyslogProgram string    `json:"syslog_program"`
-	Message       string    `json:"message"`
-	Username      string    `json:"username"`
-	SrcIP         string    `json:"src_ip"`
-	Location      uint      `json:"location"`
-	VpnHash       string    `json:"vpn_hash"`
-}
 
 func main() {
 	// Generate our config based on the config supplied
@@ -42,20 +32,13 @@ func main() {
 	}
 
 	// Init Kafka Consumer
-	kafkaConsumer, err := myKafka.ConsumerInit(cfg)
+	kafkaConsumer, err := brokers.ConsumerInit(cfg)
 	if err != nil {
 		fmt.Println(err.Error())
 		log.Fatalln(err)
 	}
 
-	// Init Kafka Producer
-	// kafkaProducer, err := myKafka.ProducerInit(cfg)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	log.Fatalln(err)
-	// }
-
-	// Iterate throuugh all messages in topic
+	// Iterate through all messages in topic
 	run := true
 	for run {
 		// PollInterval * 1000 for seconds
@@ -66,7 +49,7 @@ func main() {
 			fmt.Printf("\n\n%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
 
 			// Extract JSON string to struct
-			var vpnEntry VPNdata
+			var vpnEntry model.VPNdata
 			json.Unmarshal([]byte(e.Value), &vpnEntry)
 
 			// DEBUG
@@ -84,10 +67,10 @@ func main() {
 			fmt.Printf("VPN hash: %s\n", vpnEntry.VpnHash)
 
 			// Query database for VPN hash
-			result := database.QueryDoesVpnHashExist(mysqlConnector, vpnEntry.VpnHash)
-
-			// Enrich VPN data - push to Kafka
-			//ProduceMessagesToTopic(kafkaProducer, vpnJson, "vpn-enriched")
+			// If VpnHash does not exist add it
+			if database.QueryDoesVpnHashExist(mysqlConnector, vpnEntry.VpnHash) == false {
+				database.AddVpnUserEntry(mysqlConnector, vpnEntry.Username, vpnEntry.VpnHash, vpnEntry.SrcIP, vpnEntry.Location)
+			}
 
 		case kafka.PartitionEOF:
 			fmt.Printf("%% Reached %v\n", e)
@@ -102,7 +85,4 @@ func main() {
 
 	// Close connection to Kafka
 	kafkaConsumer.Close()
-
-	// Wait for message deliveries before shutting down
-	//kafkaProducer.Flush(15 * 1000)
 }
