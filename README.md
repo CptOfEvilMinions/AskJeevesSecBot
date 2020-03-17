@@ -3,7 +3,6 @@
 AskJeevesSecBot is golang project that has a rule engine that triggers Slack notifications to users based on pre-defined conditions. For example, a user is located in the US but suddenly there is a VPN login from Russia. This project will will send a Slack notification to the user asking if that was them, if so nothing happens, if not an incident response ticket is generated.
 
 
-
 ## Init project
 1. `go mod init github.com/CptOfEvilMinions/AskJeevesSecBot`
 
@@ -83,6 +82,11 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * []()
 * []()
 
+### RabitMQ
+* [RabbitMQ and GoLang](https://www.rabbitmq.com/tutorials/tutorial-one-go.html)
+* []()
+* []()
+* []()
 
 ### Kafka
 * [KSQL Problem while - print <topic> from beginning #2386](https://github.com/confluentinc/ksql/issues/2386)
