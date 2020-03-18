@@ -13,11 +13,11 @@ import (
 func ConsumerInit(cfg *config.Config) (*kafka.Consumer, error) {
 
 	fmt.Println("=============== Kafka ===============")
-	fmt.Println(cfg.Kafka.Hostname)
-	fmt.Println(cfg.Kafka.GroupId)
-	fmt.Println(cfg.Kafka.Offset)
-	fmt.Println(cfg.Kafka.Port)
-	fmt.Println(cfg.Kafka.ConsumerTopic)
+	fmt.Println("Hostname:", cfg.Kafka.Hostname)
+	fmt.Println("GroupId:", cfg.Kafka.GroupId)
+	fmt.Println("Offset:", cfg.Kafka.Offset)
+	fmt.Println("Port:", cfg.Kafka.Port)
+	fmt.Println("Consumer topic:", cfg.Kafka.ConsumerTopic)
 
 	kafkaServer := fmt.Sprintf("%s:%s", cfg.Kafka.Hostname, strconv.Itoa(cfg.Kafka.Port))
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{

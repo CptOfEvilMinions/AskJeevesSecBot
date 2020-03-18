@@ -24,6 +24,7 @@ type Config struct {
 		Database string `yaml:"database"`
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
+		Expire   int    `yaml:"expire"`
 	} `yaml:"mysql"`
 	RabbitMQ struct {
 		Username     string `yaml:"username"`
@@ -33,6 +34,9 @@ type Config struct {
 		QueueName    string `yaml:"queue_name"`
 		PollInterval int    `yaml:"poll_interval"`
 	} `yaml:"rabbitMQ"`
+	GeoIP struct {
+		FilePath string `yaml:"file_path"`
+	} `yaml:"GeoIP"`
 }
 
 // NewConfig returns a new decoded Config struct

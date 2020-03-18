@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -18,12 +19,12 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 	// Create MySQL DSN string
 	// [username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 	fmt.Println("=============== MySQL ===============")
-	fmt.Println(cfg.MySQL.Username)
-	fmt.Println(cfg.MySQL.Password)
-	fmt.Println(cfg.MySQL.Protocol)
-	fmt.Println(cfg.MySQL.Hostname)
-	fmt.Println(strconv.Itoa(cfg.MySQL.Port))
-	fmt.Println(cfg.MySQL.Database)
+	fmt.Println("Username:", cfg.MySQL.Username)
+	fmt.Println("Password:", cfg.MySQL.Password)
+	fmt.Println("Protocol:", cfg.MySQL.Protocol)
+	fmt.Println("Hostname:", cfg.MySQL.Hostname)
+	fmt.Println("Port:", strconv.Itoa(cfg.MySQL.Port))
+	fmt.Println("Database:", cfg.MySQL.Database)
 
 	MySQLServerDSN := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		cfg.MySQL.Username,
@@ -52,16 +53,16 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 
 // AddVpnUserEntry input:
 // AddVpnUserEntry output:
-func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string, Location uint) (bool, error) {
+func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string, ISOcode uint, Location string) (bool, error) {
 	// Create user VPN entry
 	userVPNLog := UserVPNLog{
-		Username:      Username,
-		VpnHash:       VpnHash,
-		IPaddr:        IPaddr,
-		Location:      Location,
-		Confirm:       false,
-		Count:         1,
-		LastLoginDate: time.Now().Format(time.RFC3339),
+		Username: Username,
+		VpnHash:  VpnHash,
+		IPaddr:   IPaddr,
+		ISOcode:  ISOcode,
+		Location: Location,
+		Confirm:  false,
+		Counter:  1,
 	}
 
 	// Add record to database
@@ -72,11 +73,31 @@ func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string
 	return true, nil
 }
 
+// DeleteOldEntries input:
+// DeleteOldEntries output:
+func DeleteOldEntries(db *gorm.DB, cfg *config.Config) {
+	currentDate := time.Now()     // Get current date YYYY-MM-DD
+	userVPNLogs := []UserVPNLog{} // Init list for objs
+
+	// Get all records
+	db.Find(&userVPNLogs)
+	for _, userVPNLog := range userVPNLogs {
+		// Calculate Delta between timestamps
+		daysDelta := currentDate.Sub(userVPNLog.UpdatedAt).Hours() / 24
+
+		// If great than setting delete
+		if daysDelta >= float64(cfg.MySQL.Expire) {
+			log.Println("Deleted:", userVPNLog.VpnHash, userVPNLog.Username, userVPNLog.IPaddr, userVPNLog.ISOcode, userVPNLog.Location)
+			db.Unscoped().Delete(&userVPNLog)
+		}
+	}
+}
+
 // updateUserVPNCounter input:
 // updateUserVPNCounter output:
 func updateUserVPNCounter(db *gorm.DB, userVPNLog UserVPNLog) {
 	db.First(&userVPNLog)
-	userVPNLog.Count++
+	userVPNLog.Counter++
 	db.Save(&userVPNLog)
 }
 

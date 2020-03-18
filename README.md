@@ -28,7 +28,7 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 
 ## Test setup
 1. `docker run -it --net askjeevessecbot_logging-backend ubuntu:18.04 bash`
-1. `logger -n 10.150.100.210 -P 1514 --rfc3164 -t 'openvpn' "1.1.1.1:56555 [spartan2194] Peer Connection Initiated with [AF_INET]1.1.1.1:56555"`
+1. `logger -n 10.150.100.210 -P 1514 --rfc3164 -t 'openvpn' "128.101.101.101:56555 [testuser] Peer Connection Initiated with [AF_INET]128.101.101.101:56555"`
 
 ## References
 ### Rsyslog
@@ -55,9 +55,8 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [Sleeping in Go – How to Pause Execution](https://golangcode.com/sleeping-with-go/)
 * [How to Parse JSON in Golang (With Examples)](https://www.sohamkamani.com/blog/2017/10/18/parsing-json-in-golang/)
 * [package sha3](https://pkg.go.dev/golang.org/x/crypto/sha3?tab=overview)
-* []()
-* []()
-* []()
+* [Using The Log Package In Go](https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html)
+* [goCron: A Golang Job Scheduling Package.](https://github.com/jasonlvhit/gocron)
 * []()
 * []()
 
@@ -73,7 +72,8 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [Host '172.18.0.1' is not allowed to connect to this MySQL server](https://github.com/docker-library/mysql/issues/275)
 * [Advanced Usage](http://jinzhu.me/gorm/advanced.html#compose-primary-key)
 * [Developing a simple CRUD API with Go, Gin and Gorm](https://medium.com/@cgrant/developing-a-simple-crud-api-with-go-gin-and-gorm-df87d98e6ed1)
-* []()
+* [GORM - Delete](http://gorm.io/docs/delete.html)
+* [GORM - Query](http://gorm.io/docs/query.html)
 * []()
 * []()
 * []()

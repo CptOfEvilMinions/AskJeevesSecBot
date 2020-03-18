@@ -1,4 +1,4 @@
-package model
+package brokers
 
 import (
 	"time"
@@ -11,6 +11,4 @@ type VPNdata struct {
 	Message       string    `json:"message"`
 	Username      string    `json:"username"`
 	SrcIP         string    `json:"src_ip"`
-	Location      uint      `json:"location"`
-	VpnHash       string    `json:"vpn_hash"`
 }

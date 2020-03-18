@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
-	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/model"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/brokers"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
@@ -15,6 +14,7 @@ import (
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/hash"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	//"github.com/jasonlvhit/gocron"
 )
 
 func main() {
@@ -38,6 +38,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// Init GeoIP database reader
+	geoIPreader, err := geoip.InitGeoIPReader(cfg)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatalln(err)
+	}
+
+	// Init clean up tasks
+	//gocron.Every(24).Hours().DoSafely(database.DeleteOldEntries, mysqlConnector, cfg) // Look for old events
+	// Start all the pending jobs
+	//<-gocron.Start()
+
 	// Iterate through all messages in topic
 	run := true
 	for run {
@@ -49,27 +61,28 @@ func main() {
 			fmt.Printf("\n\n%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
 
 			// Extract JSON string to struct
-			var vpnEntry model.VPNdata
+			var vpnEntry brokers.VPNdata
 			json.Unmarshal([]byte(e.Value), &vpnEntry)
 
 			// DEBUG
 			//fmt.Printf("json object:::: %v\n", vpnEntry)
 
 			// Set Location
-			vpnEntry.Location, err = geoip.IPaddrLocationLookup(vpnEntry.SrcIP)
+			location, isoCode, err := geoip.IPaddrLocationLookup(geoIPreader, vpnEntry.SrcIP)
+			//vpnEntry.Location, err = geoip.IPaddrLocationLookup(vpnEntry.SrcIP)
 			if err != nil {
 				fmt.Println(err.Error())
 				log.Fatalln(err)
 			}
 
 			// Set VPN hash
-			vpnEntry.VpnHash = hash.VpnHash(vpnEntry.Username, vpnEntry.SrcIP, vpnEntry.Location)
-			fmt.Printf("VPN hash: %s\n", vpnEntry.VpnHash)
+			vpnHash := hash.VpnHash(vpnEntry.Username, vpnEntry.SrcIP, isoCode)
+			fmt.Printf("VPN hash: %s\n", vpnHash)
 
 			// Query database for VPN hash
 			// If VpnHash does not exist add it
-			if database.QueryDoesVpnHashExist(mysqlConnector, vpnEntry.VpnHash) == false {
-				database.AddVpnUserEntry(mysqlConnector, vpnEntry.Username, vpnEntry.VpnHash, vpnEntry.SrcIP, vpnEntry.Location)
+			if database.QueryDoesVpnHashExist(mysqlConnector, vpnHash) == false {
+				database.AddVpnUserEntry(mysqlConnector, vpnEntry.Username, vpnHash, vpnEntry.SrcIP, isoCode, location)
 			}
 
 		case kafka.PartitionEOF:

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
 	"github.com/oschwald/maxminddb-golang"
 )
 
@@ -31,28 +32,34 @@ type GeoIPCity struct {
 	} `maxminddb:"subdivisions"`
 }
 
+// InitGeoIPReader input:
+// InitGeoIPReader output:
+func InitGeoIPReader(cfg *config.Config) (*maxminddb.Reader, error) {
+	// Open database
+	db, err := maxminddb.Open(cfg.GeoIP.FilePath)
+	if err != nil {
+		return nil, err
+	}
+	//defer db.Close()
+
+	return db, nil
+}
+
 // IPaddrLocationLookup input: Takes in an IP address as a string
 // IPaddrLocationLookup output: Returns Geo lcoation UID
-func IPaddrLocationLookup(IPaddr string) (uint, error) {
-	// Open database
-	db, err := maxminddb.Open("data/GeoLite2-City.mmdb")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
-
+func IPaddrLocationLookup(db *maxminddb.Reader, IPaddr string) (string, uint, error) {
 	// Convert IP astring to net IP format
 	ip := net.ParseIP(IPaddr)
 
 	// IP lookup
 	var record GeoIPCity
-	err = db.Lookup(ip, &record)
+	err := db.Lookup(ip, &record)
 	if err == nil {
 		fmt.Println(record)
-		temp := fmt.Sprintf("%s, %s, %s, %d", record.Country.IsoCode, record.Continent.Code, record.Subdivisions[0].IsoCode, record.Subdivisions[0].GeoNameID)
-		fmt.Println(temp)
-		return record.Subdivisions[0].GeoNameID, nil
+		tempLoc := fmt.Sprintf("%s, %s, %s", record.Subdivisions[0].Names["en"], record.Country.IsoCode, record.Continent.Code)
+		fmt.Println(tempLoc)
+		return tempLoc, record.Subdivisions[0].GeoNameID, nil
 	}
 
-	return 0, err
+	return "", 0, err
 }

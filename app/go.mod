@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/confluentinc/confluent-kafka-go v1.3.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/jasonlvhit/gocron v0.0.0-20200316162327-7d4169cbb9c2
 	github.com/jinzhu/gorm v1.9.12
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/slack-go/slack v0.6.3 // indirect
