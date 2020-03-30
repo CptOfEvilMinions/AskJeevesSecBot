@@ -12,6 +12,7 @@ import (
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/geoip"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/hash"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/slack"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	//"github.com/jasonlvhit/gocron"
@@ -31,6 +32,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// Run MySQL clean up
+	database.DeleteOldEntries(mysqlConnector, cfg)
+
+	// Init background task
+	//gocron.Every(24).Hours().DoSafely(database.DeleteOldEntries, mysqlConnector, cfg) // Look for old events
+	// Start all the pending jobs
+	//<-gocron.Start()
+
 	// Init Kafka Consumer
 	kafkaConsumer, err := brokers.ConsumerInit(cfg)
 	if err != nil {
@@ -45,10 +54,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Init clean up tasks
-	//gocron.Every(24).Hours().DoSafely(database.DeleteOldEntries, mysqlConnector, cfg) // Look for old events
-	// Start all the pending jobs
-	//<-gocron.Start()
+	// Init Slack API
+	slackConnector := slack.InitConnector(cfg)
+	fmt.Println(slackConnector)
 
 	// Iterate through all messages in topic
 	run := true
@@ -80,9 +88,29 @@ func main() {
 			fmt.Printf("VPN hash: %s\n", vpnHash)
 
 			// Query database for VPN hash
-			// If VpnHash does not exist add it
+			// If VpnHash does not exist add it to database, query location, and send slack message to user
 			if database.QueryDoesVpnHashExist(mysqlConnector, vpnHash) == false {
+				fmt.Println("nope0")
+				// Add entry to database
 				database.AddVpnUserEntry(mysqlConnector, vpnEntry.Username, vpnHash, vpnEntry.SrcIP, isoCode, location)
+				fmt.Println("nope1")
+
+				// Query Google Maps for static map of location
+				//staticMapImage, err := google.GetStaticMap(cfg, location)
+				//if err != nil {
+				//	fmt.Println(err.Error())
+				//	log.Fatalln(err)
+				//}
+
+				// Send Slack message to user
+				fmt.Println("nope2")
+				err := slack.SendUserMessage(cfg, slackConnector, vpnEntry, location, vpnHash)
+				if err != nil {
+					fmt.Println(err.Error())
+					log.Fatalln(err)
+				}
+				fmt.Println("nope3")
+
 			}
 
 		case kafka.PartitionEOF:

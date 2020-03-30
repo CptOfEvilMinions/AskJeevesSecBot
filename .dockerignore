@@ -1,6 +1,6 @@
-app/
 !conf/rsyslog-server
 go.mod
 go.sum
 README.md
+app/AskJeevesSecBot
 app/AskJeevesSecBot

@@ -39,7 +39,7 @@ services:
   zookeeper:
     container_name: askjeevessecbot-zookeeper
     restart: unless-stopped
-    image: "confluentinc/cp-zookeeper:5.4.0"
+    image: "confluentinc/cp-zookeeper:5.4.1"
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
@@ -52,7 +52,7 @@ services:
   kafka:
     container_name: askjeevessecbot-kafka
     restart: unless-stopped
-    image: "confluentinc/cp-enterprise-kafka:5.4.0"
+    image: "confluentinc/cp-enterprise-kafka:5.4.1"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
@@ -80,7 +80,7 @@ services:
   schema-registry:
     container_name: askjeevessecbot-schema-registry
     restart: unless-stopped
-    image: "confluentinc/cp-schema-registry:5.4.0"
+    image: "confluentinc/cp-schema-registry:5.4.1"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
@@ -96,7 +96,7 @@ services:
   ksql-server:
     container_name: askjeevessecbot-ksql-server
     restart: unless-stopped
-    image: "confluentinc/cp-ksql-server:5.4.0"
+    image: "confluentinc/cp-ksql-server:5.4.1"
     networks: 
       - kafka-backend
     environment:
@@ -113,7 +113,7 @@ services:
   ksql-cli:
     container_name: askjeevessecbot-ksql-cli
     restart: unless-stopped
-    image: confluentinc/cp-ksql-cli:5.4.0
+    image: confluentinc/cp-ksql-cli:5.4.1
     environment:
       KSQL_HEAP_OPTS: -Xmx500m
     entrypoint: /bin/sh

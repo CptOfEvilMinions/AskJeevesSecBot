@@ -1,0 +1,8 @@
+version: '2.2'
+services: 
+  app:
+    container_name: 'AskJeeves-ButlingButler'
+    restart: unless-stopped
+    build: .
+    ports: 
+      - 5001:5000

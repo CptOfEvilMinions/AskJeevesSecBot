@@ -8,6 +8,9 @@ import (
 )
 
 type Config struct {
+	Slack struct {
+		Token string `yaml:"token"`
+	} `yaml:"Slack"`
 	Kafka struct {
 		Hostname      string `yaml:"hostname"`
 		Port          int    `yaml:"port"`
@@ -16,7 +19,6 @@ type Config struct {
 		ConsumerTopic string `yaml:"consumer_topic"`
 		PollInterval  int    `yaml:"poll_interval"`
 	} `yaml:"kafka"`
-
 	MySQL struct {
 		Hostname string `yaml:"hostname"`
 		Port     int    `yaml:"port"`
@@ -26,14 +28,6 @@ type Config struct {
 		Password string `yaml:"password"`
 		Expire   int    `yaml:"expire"`
 	} `yaml:"mysql"`
-	RabbitMQ struct {
-		Username     string `yaml:"username"`
-		Password     string `yaml:"password"`
-		Hostname     string `yaml:"hostname"`
-		Port         int    `yaml:"port"`
-		QueueName    string `yaml:"queue_name"`
-		PollInterval int    `yaml:"poll_interval"`
-	} `yaml:"rabbitMQ"`
 	GeoIP struct {
 		FilePath string `yaml:"file_path"`
 	} `yaml:"GeoIP"`

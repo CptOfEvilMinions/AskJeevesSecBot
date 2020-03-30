@@ -1,12 +1,39 @@
-FROM golang:1.13
-WORKDIR /go/src/app
-COPY app /go/src/app
+FROM golang:1.13-alpine as build
 
-RUN go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+# Set working dir and copy app
+WORKDIR /go/src/app
+COPY /app /go/src/app/
+ 
+# Downlaod GOLANG packages
+RUN go mod download
+
+# Install LibKafka
+RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories
+RUN apk add librdkafka-dev>1.3.0 build-base pkgconf git
+
+# Compile app
+RUN CGO_ENABLED=0 GOOS=linux go build -o askjeevessecbot .
+#RUN GOOS=linux go build -o askjeevessecbot .
 
 FROM ubuntu:18.04
-RUN apt-get update -y && apt-get install -y librdkafka-dev
-WORKDIR /root/
-COPY --from=0 /go/src/app .
-CMD ["./app"]  
+
+# Create user
+RUN useradd -ms /bin/bash app
+
+# Make app directory
+RUN mkdir -p /app{config,data}
+WORKDIR /app
+
+# Copy binary from abive
+COPY --from=build /go/src/app/askjeevessecbot /app/askjeevessecbot
+
+# Copy config and GeoIP database
+COPY app/config/config.yaml /app/config/config.yaml
+COPY app/data/GeoLite2-City.mmdb /app/data/GeoLite2-City.mmdb 
+
+# Set perms to user
+RUN chown app:app -R /app
+
+USER app
+
+CMD ["/app/askjeevessecbot"]  

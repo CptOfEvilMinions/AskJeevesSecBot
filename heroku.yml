@@ -1,0 +1,6 @@
+build:
+  docker:
+    app: docker/Dockerfile-butlingbutler
+
+run:
+  app: bundle exec 

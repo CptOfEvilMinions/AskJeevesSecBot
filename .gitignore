@@ -2,3 +2,8 @@ app/config/config.yaml
 app/data/GeoLite2-City.mmdb
 app/main
 app/AskJeevesSecBot
+ButlingButler/venv
+ButlingButler/config/config.py
+__pycache__
+AskJeeves/AskJeevesSecBot
+AskJeeves/data/GeoLite2-City.mmdb
