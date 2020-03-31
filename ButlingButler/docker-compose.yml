@@ -1,8 +1,41 @@
 version: '2.2'
 services: 
+  ############################################ app ############################################
   app:
-    container_name: 'AskJeeves-ButlingButler'
+    container_name: 'ButlingButler-app'
     restart: unless-stopped
     build: .
+    networks: 
+      - default
+      - backend
     ports: 
       - 5001:5000
+    depends_on:
+      - mysql
+    cpus: 1
+    mem_limit: 150M
+
+  ############################################ MySQL ############################################
+  mysql:
+    container_name: ButlingButler-mysql
+    restart: unless-stopped
+    image: mysql:5.7
+    environment: 
+      MYSQL_ROOT_PASSWORD: "toor"
+      MYSQL_DATABASE: "butlingbutler"
+      MYSQL_USER: "butlingbutler"
+      MYSQL_PASSWORD: "changeme"
+      MYSQL_ROOT_HOST: '%'
+    networks:
+      - backend
+    volumes: 
+      - mysql-db:/var/lib/mysql
+    cpus: 1
+    mem_limit: 150M
+
+
+networks: 
+  backend:
+  
+volumes: 
+  mysql-db:

@@ -34,7 +34,23 @@ services:
     mem_limit: 150M
 
   ############################################ MySQL ############################################
-    
+  mysql:
+    container_name: askjeevessecbot-mysql
+    restart: unless-stopped
+    image: mysql:5.7
+    environment: 
+      MYSQL_ROOT_PASSWORD: "toor"
+      MYSQL_DATABASE: "askjeevessecbot"
+      MYSQL_USER: "askjeevessecbot"
+      MYSQL_PASSWORD: "changeme"
+      - kafka-backend
+    volumes: 
+      - mysql-db:/var/lib/mysql
+    depends_on:
+      - kafka
+    cpus: 1
+    mem_limit: 150M
+
   ############################################ Zookeeper ############################################
   zookeeper:
     container_name: askjeevessecbot-zookeeper

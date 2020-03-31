@@ -7,3 +7,4 @@ ButlingButler/config/config.py
 __pycache__
 AskJeeves/AskJeevesSecBot
 AskJeeves/data/GeoLite2-City.mmdb
+AskJeeves/config/config.yaml

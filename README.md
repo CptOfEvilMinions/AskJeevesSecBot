@@ -4,6 +4,16 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 
 * [Blog post here]()
 
+## User prompt
+![VPN prompt](.img/prompt.png)
+
+## User accept
+![VPN prompt](.img/legit.png)
+
+## User denied
+![VPN prompt](.img/unauthorized.png)
+
+
 ## Diagram
 <p align="center">
   <img src=".img/diagram.png">
@@ -91,6 +101,10 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [How to Format Current Date & Time in Golang](https://www.utekar.com/golang-current-date-time-format/)
 * [Format a time or date [complete guide]](https://yourbasic.org/golang/format-parse-string-time-date-example/)
 * [How to URL Encode a String in Golang](https://www.urlencoder.io/golang/)
+* [Generating good unique ids in Go edit](https://blog.kowalczyk.info/article/JyRZ/generating-good-unique-ids-in-go.html)
+* []()
+* []()
+* []()
 * []()
 * []()
 

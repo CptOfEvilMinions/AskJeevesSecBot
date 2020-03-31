@@ -7,6 +7,7 @@ import (
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/brokers"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
+	guuid "github.com/google/uuid"
 	"github.com/slack-go/slack"
 )
 
@@ -24,7 +25,7 @@ func InitConnector(cfg *config.Config) *slack.Client {
 func generateUserInformationBlocks(vpnEntry brokers.VPNdata, location string, vpnHash string) []*slack.TextBlockObject {
 	// User information fields array
 	var userInformationBlocks []*slack.TextBlockObject
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", "*EventID*\n123abc", false, false))                                                      // EventID
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*EventID*\n%s", guuid.New().String()), false, false))                       // EventID
 	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Username*\n%s", vpnEntry.Username), false, false))                         // Username
 	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Timestamp*\n%s", vpnEntry.Timestamp.Format(time.RubyDate)), false, false)) // Timestamp
 	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Location*\n%s", location), false, false))                                  // Location
