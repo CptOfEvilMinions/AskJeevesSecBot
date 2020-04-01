@@ -102,9 +102,9 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [Format a time or date [complete guide]](https://yourbasic.org/golang/format-parse-string-time-date-example/)
 * [How to URL Encode a String in Golang](https://www.urlencoder.io/golang/)
 * [Generating good unique ids in Go edit](https://blog.kowalczyk.info/article/JyRZ/generating-good-unique-ids-in-go.html)
-* []()
-* []()
-* []()
+* [How to multiply duration by integer?](https://stackoverflow.com/questions/17573190/how-to-multiply-duration-by-integer)
+* [Get current date and time in various format in golang](https://www.golangprograms.com/get-current-date-and-time-in-various-format-in-golang.html)
+* [Go Tickers Tutorial](https://tutorialedge.net/golang/go-ticker-tutorial/)
 * []()
 * []()
 

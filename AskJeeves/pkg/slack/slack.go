@@ -20,8 +20,8 @@ func InitConnector(cfg *config.Config) *slack.Client {
 	return slack.New(cfg.Slack.Token)
 }
 
-// generateUserInformationBlocks input:
-// generateUserInformationBlocks output:
+// generateUserInformationBlocks input: vpnEntry about login, location, and vpnHash
+// generateUserInformationBlocks output: Return Slack information text block based on VPN login
 func generateUserInformationBlocks(vpnEntry brokers.VPNdata, location string, vpnHash string) []*slack.TextBlockObject {
 	// User information fields array
 	var userInformationBlocks []*slack.TextBlockObject
@@ -36,8 +36,8 @@ func generateUserInformationBlocks(vpnEntry brokers.VPNdata, location string, vp
 	return userInformationBlocks
 }
 
-// SendUserMessage input:
-// SendUserMessage output:
+// SendUserMessage input: config, slack connector, vpnEntry, location, and vpnHash
+// SendUserMessage output: Return error if there is one
 // https://godoc.org/github.com/nlopes/slack#Client.SendMessage
 // https://github.com/slack-go/slack/issues/603
 func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry brokers.VPNdata, location string, vpnHash string) error {
@@ -57,7 +57,6 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry broker
 	userInformationSecion := slack.NewSectionBlock(nil, userInformationBlocks, nil)
 
 	//////////////////////////////////////// User selection section ////////////////////////////////////////
-	//var userSelectorBtns []*slack.BlockElements
 
 	// Legititmate login
 	legitimateBtnTxt := slack.NewTextBlockObject("plain_text", "This was me", false, false)
@@ -71,18 +70,12 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry broker
 	unauthorizedBtn.WithStyle("danger")
 	unauthorizedActionBlock := slack.NewActionBlock("", unauthorizedBtn)
 
-	//userSelectorBtns = append(userSelectorBtns, legitimateBtn)
-	//userSelectorBtns = append(userSelectorBtns, unauthorizedBtn)
-
-	//userSelectorActionBlock := slack.NewActionBlock("", userSelectorBtns)
-
 	params := slack.MsgOptionBlocks(
 		headerSection,
 		imageBlock,
 		divSection,
 		userInformationSecion,
 		divSection,
-		//userSelectorActionBlock,
 		legitimateActionBlock,
 		unauthorizedActionBlock,
 	)

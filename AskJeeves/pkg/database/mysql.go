@@ -12,8 +12,8 @@ import (
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
 )
 
-// InitMySQLConnector input:
-// InitMySQLConnector output:
+// InitMySQLConnector input: config
+// InitMySQLConnector output: Return MySQL connector
 // https://tutorialedge.net/golang/golang-mysql-tutorial/
 func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 	// Create MySQL DSN string
@@ -42,17 +42,14 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// defer the close till after the main function has finished executing
-	//defer db.Close()
-
 	// Init schema
 	db.AutoMigrate(&UserVPNLog{})
 
 	return db, nil
 }
 
-// AddVpnUserEntry input:
-// AddVpnUserEntry output:
+// AddVpnUserEntry input: MySQL connector and values about the VPN login
+// AddVpnUserEntry output: Return True is login is sucessfully added to DB
 func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string, ISOcode uint, Location string) (bool, error) {
 	// Create user VPN entry
 	userVPNLog := UserVPNLog{
@@ -73,36 +70,51 @@ func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string
 	return true, nil
 }
 
-// DeleteOldEntries input:
-// DeleteOldEntries output:
+// DeleteOldEntries input: MySQL connector and config
+// This function will init a Golang Ticker to perform this task
+// every cfg.MySQL.Interval (seconds) to query all entries in the
+// database and delete all entries older than cfg.MySQL.Expire (days)
+// DeleteOldEntries output: None
+// https://tutorialedge.net/golang/go-ticker-tutorial/
 func DeleteOldEntries(db *gorm.DB, cfg *config.Config) {
-	currentDate := time.Now()     // Get current date YYYY-MM-DD
-	userVPNLogs := []UserVPNLog{} // Init list for objs
 
-	// Get all records
-	db.Find(&userVPNLogs)
-	for _, userVPNLog := range userVPNLogs {
-		// Calculate Delta between timestamps
-		daysDelta := currentDate.Sub(userVPNLog.UpdatedAt).Hours() / 24
+	// Create ticker
+	ticker := time.NewTicker(time.Duration(cfg.MySQL.Interval) * time.Second)
 
-		// If great than setting delete
-		if daysDelta >= float64(cfg.MySQL.Expire) {
-			log.Println("Deleted:", userVPNLog.VpnHash, userVPNLog.Username, userVPNLog.IPaddr, userVPNLog.ISOcode, userVPNLog.Location)
-			db.Unscoped().Delete(&userVPNLog)
+	for range ticker.C {
+		currentDate := time.Now()     // Get current date YYYY-MM-DD
+		userVPNLogs := []UserVPNLog{} // Init list for objs
+
+		// Get all records
+		db.Find(&userVPNLogs)
+		for _, userVPNLog := range userVPNLogs {
+			// Calculate Delta between timestamps
+			daysDelta := currentDate.Sub(userVPNLog.UpdatedAt).Hours() / 24
+
+			// If great than setting delete
+			if daysDelta >= float64(cfg.MySQL.Expire) {
+				log.Println("Deleted:", userVPNLog.VpnHash, userVPNLog.Username, userVPNLog.IPaddr, userVPNLog.ISOcode, userVPNLog.Location)
+				db.Unscoped().Delete(&userVPNLog)
+			}
 		}
+
+		fmt.Printf("[+] - %s - Cleaned up old entries", time.Now().Format("2006-01-02 15:04:05"))
+
 	}
+
 }
 
-// updateUserVPNCounter input:
-// updateUserVPNCounter output:
+// updateUserVPNCounter input: MySQL connector and userVPNlog obj
+// This function will update a user login counter
+// updateUserVPNCounter output:  None
 func updateUserVPNCounter(db *gorm.DB, userVPNLog UserVPNLog) {
 	db.First(&userVPNLog)
 	userVPNLog.Counter++
 	db.Save(&userVPNLog)
 }
 
-// QueryDoesVpnHashExist input: DB connecter and VPnHash
-// QueryDoesVpnHashExist output: If Vpnhash exists return true, else false
+// QueryDoesVpnHashExist input: MySQL connector and VpnHash
+// QueryDoesVpnHashExist output: If the VpnHash exists return true, else false
 func QueryDoesVpnHashExist(db *gorm.DB, VpnHash string) bool {
 	// init obj
 	userVPNLog := UserVPNLog{}

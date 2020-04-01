@@ -27,6 +27,7 @@ type Config struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 		Expire   int    `yaml:"expire"`
+		Interval int    `yaml:"interval"`
 	} `yaml:"mysql"`
 	GeoIP struct {
 		FilePath string `yaml:"file_path"`

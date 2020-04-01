@@ -32,16 +32,14 @@ type GeoIPCity struct {
 	} `maxminddb:"subdivisions"`
 }
 
-// InitGeoIPReader input:
-// InitGeoIPReader output:
+// InitGeoIPReader input: config
+// InitGeoIPReader output: Return GeoIP database connector
 func InitGeoIPReader(cfg *config.Config) (*maxminddb.Reader, error) {
 	// Open database
 	db, err := maxminddb.Open(cfg.GeoIP.FilePath)
 	if err != nil {
 		return nil, err
 	}
-	//defer db.Close()
-
 	return db, nil
 }
 
