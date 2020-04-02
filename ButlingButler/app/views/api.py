@@ -1,32 +1,14 @@
-from flask import Blueprint, request, abort,send_file, Response, make_response
+from flask import Blueprint, request, abort, send_file, Response, make_response
 from app.helpers.google_maps import get_static_map
-from flask import current_app as app
+from app.helpers.slack import verify_slack_request
+from flask_jwt_extended import jwt_required
 from app.model import db,UserResponse
 from flask import current_app as app
-import time, json
+import json
 
 
 # Add blueprints
 api = Blueprint('api', __name__, url_prefix="/askjeeves", template_folder='templates')
-
-
-# def verify_signing_key(slack_signing_secret, slack_token, slack_timestamp, slack_signature) -> bool:
-#     """
-#     """
-#     if abs(time.time() - slack_timestamp) > 60 * 5:
-#         return False
-
-#     sig_basestring = "v0:" + slack_timestamp + ":token=" + slack_token
-
-#     my_signature = 'v0=' + hmac.compute_hash_sha256(
-#                     slack_signing_secret,
-#                     sig_basestring
-#                 ).hexdigest()
-
-#     if hmac.compare(my_signature, slack_signature):
-#         return True
-#     return False
-    
 
 
 @api.route('/GoogleMaps', methods=['GET'])
@@ -44,60 +26,64 @@ def get_google_map():
 @api.route('/', methods=['POST'])
 @api.route('/UserResponse', methods=['POST'])
 def user_response():
-    # Make sure HTTP header includes Slack headers
     if request.headers.get("X-Slack-Signature") and request.headers.get("X-Slack-Request-Timestamp") and request.headers["Content-Type"] == "application/x-www-form-urlencoded":
-        # Get URL encoded form data
-        payload = json.loads(request.form['payload'])
+        request_body = request.get_data()
+        slack_signature = request.headers.get('X-Slack-Signature', None)
+        slack_request_timestamp = request.headers.get('X-Slack-Request-Timestamp', None)
+        if verify_slack_request(slack_signature, slack_request_timestamp, request_body):
+            # Get URL encoded form data
+            payload = json.loads(request.form['payload'])
 
-        # Unpack values from fields
-        temp_dict = dict()
-        for field in payload['message']['blocks'][3]['fields']:
-            temp_dict[field['text'].split("*\n")[0][1:]] = field['text'].split("*\n")[1]
-        temp_dict['Username'] = payload['user']['username']
-        temp_dict['user_selection'] = payload['actions'][0]['value']
+            # Unpack values from fields
+            temp_dict = dict()
+            for field in payload['message']['blocks'][3]['fields']:
+                temp_dict[field['text'].split("*\n")[0][1:]] = field['text'].split("*\n")[1]
+            temp_dict['Username'] = payload['user']['username']
+            temp_dict['user_selection'] = payload['actions'][0]['value']
 
-        # Create DB entry
-        userResponse = UserResponse(
-            EvnetID=temp_dict['EventID'],
-            Username=temp_dict['Username'],
-            Timestamp=temp_dict['Timestamp'],
-            Location=temp_dict['Location'],
-            IPaddress=temp_dict['IPaddress'],
-            VPNHash=temp_dict['VPNhash'],
-            Device=temp_dict['Device'],
-            Hostname=temp_dict['Hostname'],
-            Selection=temp_dict['user_selection']
-        )
+            # Create DB entry
+            userResponse = UserResponse(
+                EvnetID=temp_dict['EventID'],
+                Username=temp_dict['Username'],
+                Timestamp=temp_dict['Timestamp'],
+                Location=temp_dict['Location'],
+                IPaddress=temp_dict['IPaddress'],
+                VPNHash=temp_dict['VPNhash'],
+                Device=temp_dict['Device'],
+                Hostname=temp_dict['Hostname'],
+                Selection=temp_dict['user_selection']
+            )
 
-        # Commit DB entry
-        db.session.add(userResponse)
-        db.session.commit()
+            # Commit DB entry
+            db.session.add(userResponse)
+            db.session.commit()
 
-        # remove blocks
-        del payload['message']['blocks']
+            # remove blocks
+            del payload['message']['blocks']
 
-        selection = payload['actions'][0]['value']
+            selection = payload['actions'][0]['value']
 
-        msg_text = str()
-        if selection == "legitimate_login":
-            msg_text = ":partyparrot:"
-        else:
-            msg_text = ":rotating-light-red:  :rotating-light-red:  :rotating-light-red:  Alerting security team :rotating-light-red:  :rotating-light-red:  :rotating-light-red: "
+            msg_text = str()
+            if selection == "legitimate_login":
+                msg_text = ":partyparrot:"
+            else:
+                msg_text = ":rotating-light-red:  :rotating-light-red:  :rotating-light-red:  Alerting security team :rotating-light-red:  :rotating-light-red:  :rotating-light-red: "
 
- 
-        response = app.slack_client.chat_update(
-            channel=payload["channel"]["id"],
-            ts=payload['container']["message_ts"],
-            text=msg_text,
-            blocks=[],
-            attachments=[]
-        )
-        return make_response("", 200)
+    
+            response = app.slack_client.chat_update(
+                channel=payload["channel"]["id"],
+                ts=payload['container']["message_ts"],
+                text=msg_text,
+                blocks=[],
+                attachments=[]
+            )
+            return make_response("", 200)
 
     return abort(404)
 
 
 @api.route('/GetUserResponse', methods=['GET'])
+@jwt_required
 def get_user_responses():
     """
     Input: Request to get all the user responses in MySQL database
