@@ -9,6 +9,7 @@ import (
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/brokers"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/butlingbutler"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/geoip"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/hash"
@@ -52,6 +53,18 @@ func main() {
 	// Init Slack API
 	slackConnector := slack.InitConnector(cfg)
 	fmt.Println(slackConnector)
+
+	// Init JWT token for ButlingButler
+	JWTtoken, err := butlingbutler.InitJWTtoken(cfg)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatalln(err)
+	}
+	fmt.Println(JWTtoken)
+
+	// Run ButlingButler user requests
+	// Init background task
+	go butlingbutler.UpdateDatabaseEntries(JWTtoken, cfg)
 
 	// Iterate through all messages in topic
 	run := true

@@ -32,6 +32,12 @@ type Config struct {
 	GeoIP struct {
 		FilePath string `yaml:"file_path"`
 	} `yaml:"GeoIP"`
+	ButlingButler struct {
+		URL      string `yaml:"url"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+		Interval int    `yaml:"interval"`
+	} `yaml:"ButlingButler"`
 }
 
 // NewConfig returns a new decoded Config struct
