@@ -4,3 +4,4 @@ go.sum
 README.md
 app/AskJeevesSecBot
 app/AskJeevesSecBot
+AskJeeves/data/GeoLite2-City.tar.gz

@@ -8,13 +8,14 @@ RUN useradd -ms /bin/bash app
 
 # Copy app
 RUN mkdir /ButlingButler
-COPY app /ButlingButler/app
-COPY config /ButlingButler/config
-COPY run_server.py /ButlingButler/run_server.py
 COPY requirements.txt /ButlingButler/requirements.txt
 
 # Install Python modules
 RUN pip3 install -r /ButlingButler/requirements.txt
+
+COPY app /ButlingButler/app
+COPY config /ButlingButler/config
+COPY run_server.py /ButlingButler/run_server.py
 
 # Change perms
 RUN chown app:app -R /ButlingButler

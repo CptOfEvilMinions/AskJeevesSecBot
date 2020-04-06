@@ -43,7 +43,7 @@ def user_response():
 
             # Create DB entry
             userResponse = UserResponse(
-                EvnetID=temp_dict['EventID'],
+                EventID=temp_dict['EventID'],
                 Username=temp_dict['Username'],
                 Timestamp=temp_dict['Timestamp'],
                 Location=temp_dict['Location'],

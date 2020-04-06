@@ -18,7 +18,7 @@ class UserResponse(db.Model):
     #   'user_selection': 'legitimate_login'
     # }
     ID = db.Column(db.Integer, autoincrement=True)
-    EvnetID = db.Column(db.String(100), primary_key=True)
+    EventID = db.Column(db.String(100), primary_key=True)
     Username = db.Column(db.String(100), nullable=False, unique=False)
     Timestamp = db.Column(db.String(100), nullable=False, unique=False)
     Location = db.Column(db.String(100), nullable=False, unique=False)

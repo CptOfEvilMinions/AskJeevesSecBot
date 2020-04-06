@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/ticket"
+	"github.com/jinzhu/gorm"
 )
-
-type UserResponse struct {
-}
 
 // InitJWTtoken input:
 // InitJWTtoken output:
@@ -28,76 +28,75 @@ func InitJWTtoken(cfg *config.Config) (string, error) {
 		return "", err
 	}
 
+	// HTTP POST request
 	resp, err := http.Post(cfg.ButlingButler.URL+"/auth/login", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Fatalln(err)
 		return "", err
 	}
 
+	// Extract JSON
 	var result map[string]interface{}
-
 	json.NewDecoder(resp.Body).Decode(&result)
-
 	accessToken := result["access_token"].(string)
 
+	// Return accessToken
 	return accessToken, nil
 }
 
 // getUserRespones input:
 // getUserRespones output:
-func getUserRespones(JWTtoken string, cfg *config.Config) (map[string]interface{}, error) {
+// https://gist.github.com/montanaflynn/b390b1212dada5864d9b
+func getUserRespones(JWTtoken string, cfg *config.Config) ([]UserResponse, error) {
+	// Create array for response
+	var userResponses []UserResponse
+
 	// Create URL
 	url := cfg.ButlingButler.URL + "/askjeeves/GetUserResponse"
 
 	// Create a Bearer string by appending string access token
 	var bearer = "Bearer " + JWTtoken
 
-	h := http.Client{Timeout: time.Second * 2} // Maximum of 2 secs
+	// Create an HTTP client
+	c := &http.Client{}
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	// Create an HTTP request
+	r, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal(err)
-		return nil, err
+		return userResponses, err
 	}
 
-	// add authorization header to the req
-	req.Header.Add("Authorization", bearer)
+	// Add authorization header to the req
+	r.Header.Add("Authorization", bearer)
 
-	res, getErr := h.Do(req)
+	// Send the request
+	res, getErr := c.Do(r)
 	if getErr != nil {
 		log.Fatal(getErr)
 	}
 
-	if res.Body != nil {
-		defer res.Body.Close()
+	// Make sure to close after reading
+	defer res.Body.Close()
+
+	// Read all the response body
+	rb, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return userResponses, err
 	}
 
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
+	// Read JSON into obj array
+	err = json.Unmarshal(rb, &userResponses)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(getErr)
 	}
-
-	fmt.Println(body)
-
-	var parsed map[string]interface{}
-	//data := []byte
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(parsed["VPNHash"].(string))
-
-	// for _, parse := range parsed {
-	// 	fmt.Println(parse["VPNHash"].(string))
-	// }
-
-	return parsed, nil
+	return userResponses, nil
 
 }
 
 // UpdateDatabaseEntries input:
 // UpdateDatabaseEntries output:
-func UpdateDatabaseEntries(JWTtoken string, cfg *config.Config) {
+func UpdateDatabaseEntries(JWTtoken string, cfg *config.Config, db *gorm.DB) {
 	// Create ticker
 	ticker := time.NewTicker(time.Duration(cfg.ButlingButler.Interval) * time.Second)
 
@@ -108,37 +107,47 @@ func UpdateDatabaseEntries(JWTtoken string, cfg *config.Config) {
 			log.Fatalln(err)
 		}
 
+		// Continue if the user responses array has
+		// a length of 0
 		if len(userResponses) == 0 {
 			continue
 		}
 
-		println(userResponses)
+		fmt.Printf("[+] - %s - Got user responses", time.Now().Format(time.RubyDate))
 
-		// for _,  userResponse := range userResponses {
-		// 	// Query entry
+		for _, userResponse := range userResponses {
+			fmt.Println(userResponse.VPNhash)
 
-		// 	// Update entry
+			// create VPN struct obj
+			var userVPNLog database.UserVPNLog
 
-		// 	// Commit entry
-		// }
+			// Query entry
+			//db.Where("vpn_hash = ? AND event_id = ?", userResponse.VPNhash, userResponse.EventID).First(&userVPNLog)
+			db.Where("vpn_hash = ?", userResponse.VPNhash).First(&userVPNLog)
 
-		// currentDate := time.Now()     // Get current date YYYY-MM-DD
-		// userVPNLogs := []UserVPNLog{} // Init list for objs
+			fmt.Println("hello0")
+			fmt.Println(userResponse.VPNhash)
+			fmt.Println(userResponse.EventID)
+			fmt.Println("hello0")
 
-		// // Get all records
-		// db.Find(&userVPNLogs)
-		// for _, userVPNLog := range userVPNLogs {
-		// 	// Calculate Delta between timestamps
-		// 	daysDelta := currentDate.Sub(userVPNLog.UpdatedAt).Hours() / 24
+			// Update entry
+			// True: Legit login
+			// False: UNauthorized login
+			if userResponse.UserSelection == "legitimate_login" {
+				userVPNLog.UserConfirmation = true
+			} else {
+				userVPNLog.UserConfirmation = false
 
-		// 	// If great than setting delete
-		// 	if daysDelta >= float64(cfg.MySQL.Expire) {
-		// 		log.Println("Deleted:", userVPNLog.VpnHash, userVPNLog.Username, userVPNLog.IPaddr, userVPNLog.ISOcode, userVPNLog.Location)
-		// 		db.Unscoped().Delete(&userVPNLog)
-		// 	}
-		// }
+				// Create ticket and set caseID
+				userVPNLog.CaseID, err = ticket.CreateTheHiveCase(cfg, userVPNLog)
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}
 
-		fmt.Printf("[+] - %s - Got user responses", time.Now().Format("2006-01-02 15:04:05"))
+			// Commit entry
+			db.Save(&userVPNLog)
+		}
 
 	}
 }

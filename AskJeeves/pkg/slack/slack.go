@@ -5,9 +5,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/brokers"
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
-	guuid "github.com/google/uuid"
+	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/database"
 	"github.com/slack-go/slack"
 )
 
@@ -22,17 +21,17 @@ func InitConnector(cfg *config.Config) *slack.Client {
 
 // generateUserInformationBlocks input: vpnEntry about login, location, and vpnHash
 // generateUserInformationBlocks output: Return Slack information text block based on VPN login
-func generateUserInformationBlocks(vpnEntry brokers.VPNdata, location string, vpnHash string) []*slack.TextBlockObject {
+func generateUserInformationBlocks(userVPNLog database.UserVPNLog) []*slack.TextBlockObject {
 	// User information fields array
 	var userInformationBlocks []*slack.TextBlockObject
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*EventID*\n%s", guuid.New().String()), false, false))                       // EventID
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Username*\n%s", vpnEntry.Username), false, false))                         // Username
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Timestamp*\n%s", vpnEntry.Timestamp.Format(time.RubyDate)), false, false)) // Timestamp
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Location*\n%s", location), false, false))                                  // Location
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*IPaddress*\n%s", vpnEntry.SrcIP), false, false))                           // IP address
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*VPNhash*\n%s", vpnHash), false, false))                                    // VPNhash
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", "*Device*\nmacOS", false, false))                                                        // Device
-	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", "*Hostname*\nstarwars", false, false))                                                   // Hostname
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*EventID*\n%s", userVPNLog.EventID), false, false))                           // EventID
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Username*\n%s", userVPNLog.Username), false, false))                         // Username
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Timestamp*\n%s", userVPNLog.CreatedAt.Format(time.RubyDate)), false, false)) // Timestamp
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Location*\n%s", userVPNLog.Location), false, false))                         // Location
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*IPaddress*\n%s", userVPNLog.IPaddr), false, false))                          // IP address
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*VPNhash*\n%s", userVPNLog.VpnHash), false, false))                           // VPNhash
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Device*\n%s", userVPNLog.Device), false, false))                             // Device
+	userInformationBlocks = append(userInformationBlocks, slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Hostname*\n%s", userVPNLog.Hostname), false, false))                         // Hostname
 	return userInformationBlocks
 }
 
@@ -40,7 +39,7 @@ func generateUserInformationBlocks(vpnEntry brokers.VPNdata, location string, vp
 // SendUserMessage output: Return error if there is one
 // https://godoc.org/github.com/nlopes/slack#Client.SendMessage
 // https://github.com/slack-go/slack/issues/603
-func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry brokers.VPNdata, location string, vpnHash string) error {
+func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, userVPNLog database.UserVPNLog) error {
 	// Divider between sections
 	divSection := slack.NewDividerBlock()
 
@@ -50,10 +49,10 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry broker
 
 	// Google Map static image
 	imageText := slack.NewTextBlockObject("plain_text", "Location", false, false)
-	imageBlock := slack.NewImageBlock(fmt.Sprintf("https://hackinglab.beer/askjeeves/GoogleMaps?location=%s", url.QueryEscape(location)), "Marker", "test", imageText)
+	imageBlock := slack.NewImageBlock(fmt.Sprintf("https://hackinglab.beer/askjeeves/GoogleMaps?location=%s", url.QueryEscape(userVPNLog.Location)), "Marker", "test", imageText)
 
 	// Generate user information fields
-	userInformationBlocks := generateUserInformationBlocks(vpnEntry, location, vpnHash)
+	userInformationBlocks := generateUserInformationBlocks(userVPNLog)
 	userInformationSecion := slack.NewSectionBlock(nil, userInformationBlocks, nil)
 
 	//////////////////////////////////////// User selection section ////////////////////////////////////////
@@ -80,7 +79,7 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, vpnEntry broker
 		unauthorizedActionBlock,
 	)
 
-	slackUsername := "@" + vpnEntry.Username // Prepend username with @
+	slackUsername := "@" + userVPNLog.Username // Prepend username with @
 
 	if _, _, err := slackAPI.PostMessage(slackUsername, slack.MsgOptionText("", false), params); err != nil {
 		return fmt.Errorf("failed to post message: %s", err)

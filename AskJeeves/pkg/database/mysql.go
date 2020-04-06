@@ -10,6 +10,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/CptOfEvilMinions/AskJeevesSecBot/pkg/config"
+	guuid "github.com/google/uuid"
 )
 
 // InitMySQLConnector input: config
@@ -50,24 +51,18 @@ func InitMySQLConnector(cfg *config.Config) (*gorm.DB, error) {
 
 // AddVpnUserEntry input: MySQL connector and values about the VPN login
 // AddVpnUserEntry output: Return True is login is sucessfully added to DB
-func AddVpnUserEntry(db *gorm.DB, Username string, VpnHash string, IPaddr string, ISOcode uint, Location string) (bool, error) {
-	// Create user VPN entry
-	userVPNLog := UserVPNLog{
-		Username: Username,
-		VpnHash:  VpnHash,
-		IPaddr:   IPaddr,
-		ISOcode:  ISOcode,
-		Location: Location,
-		Confirm:  false,
-		Counter:  1,
-	}
+func AddVpnUserEntry(db *gorm.DB, userVPNLog UserVPNLog) (UserVPNLog, error) {
+	// Set values
+	userVPNLog.Counter = 1
+	userVPNLog.UserConfirmation = false
+	userVPNLog.EventID = guuid.New().String()
 
 	// Add record to database
 	err := db.Create(&userVPNLog).Error
 	if err != nil {
-		return false, err
+		return userVPNLog, err
 	}
-	return true, nil
+	return userVPNLog, nil
 }
 
 // DeleteOldEntries input: MySQL connector and config

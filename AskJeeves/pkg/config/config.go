@@ -30,7 +30,9 @@ type Config struct {
 		Interval int    `yaml:"interval"`
 	} `yaml:"mysql"`
 	GeoIP struct {
-		FilePath string `yaml:"file_path"`
+		FilePath   string `yaml:"file_path"`
+		URL        string `yaml:"url"`
+		LicenseKey string `yaml:"license_key"`
 	} `yaml:"GeoIP"`
 	ButlingButler struct {
 		URL      string `yaml:"url"`
@@ -38,6 +40,10 @@ type Config struct {
 		Password string `yaml:"password"`
 		Interval int    `yaml:"interval"`
 	} `yaml:"ButlingButler"`
+	TheHive struct {
+		URL    string `yaml:"url"`
+		APIkey string `yaml:"api_key"`
+	} `yaml:"theHive"`
 }
 
 // NewConfig returns a new decoded Config struct
