@@ -14,7 +14,17 @@ mysql:
   database: "askjeevessecbot"
   username: "askjeevessecbot"
   password: "changeme"
-  expire: 30
+  expire: 30 # 30 days
+  interval: 21600 # 6 hours
 GeoIP:
   file_path: "data/GeoLite2-City.mmdb"
-  api_key: ""
+  url: "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"
+  license_key: "abc123"
+ButlingButler:
+  url: "http://ButlingButler"
+  username: "askjeeves"
+  password: "abc123"
+  interval: 300 # 30 seconds
+theHive:
+  url: "https://thehive.local"
+  api_key: "abc123"

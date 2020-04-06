@@ -1,0 +1,51 @@
+import string, random
+class Config(object):
+    # Set port for flask to listen on
+    PORT = 5000
+
+    GOOGLE_MAPS_BASE_URL = "https://maps.googleapis.com/maps/api/staticmap"
+    GOOGLE_MAPS_ZOOM = 10
+    GOOGLE_MAPS_SIZE = "400x400"
+    GOOGLE_MAPS_SIZE_API_KEY = "abc123"
+
+    SLACK_TOKEN = "abc123"
+    SLACK_SGNING_SECRET = "abc123"
+
+    ASKJEEVES_USERNAME = "askjeeves"
+    ASKJEEVES_PASSWORD = "abc123"
+
+class DevelopmentConfig(Config):
+    # DEBUG mode
+    DEBUG = True
+
+    # Set bind
+    HOST = '127.0.0.1'
+
+    # secret key
+    SECRET_KEY = 'super_secret_key'
+
+    # SQLalchemy
+    # Save DB in memory
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+class DockerConfig(Config):
+    # DEBUG mode
+    DEBUG = False
+
+    # Set bind
+    HOST = '0.0.0.0'
+
+    # secret key
+    SECRET_KEY = ''.join(random.sample(string.ascii_lowercase, 20))
+
+    MYSQL_DATABASE = "butlingbutler"
+    MYSQL_USERNAME = "butlingbutler"
+    MYSQL_PASSWORD = "changeme"
+    MYSQL_HOSTNAME = "mysql"
+
+    # SQLalchemy
+    SQLALCHEMY_DATABASE_URI = f"mysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOSTNAME}/{MYSQL_DATABASE}"
+
+
+
+
