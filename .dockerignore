@@ -2,6 +2,7 @@
 go.mod
 go.sum
 README.md
-app/AskJeevesSecBot
-app/AskJeevesSecBot
-AskJeeves/data/GeoLite2-City.tar.gz
+AskJeeves/AskJeevesSecBot
+AskJeeves/data/*
+__pycache__/
+venv/

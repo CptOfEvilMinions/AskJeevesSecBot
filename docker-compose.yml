@@ -1,18 +1,20 @@
 version: '2.2'
 services:
   ############################################ app ############################################
-  # app:
-  #   container_name: askjeevessecbot-app
-  #   restart: unless-stopped
-  #   build: 
-  #     context: .
-  #     dockerfile: docker/Dockerfile-app
-  #   networks:
-  #     - kafka-backend
-  #   depends_on:
-  #     - kafka
-  #   cpus: 2
-  #   mem_limit: 150M
+  app:
+    container_name: askjeevessecbot-app
+    restart: unless-stopped
+    build: 
+      context: AskJeeves
+      dockerfile: Dockerfile-app
+    networks:
+      - kafka-backend
+    depends_on:
+      - kafka
+      - mysql
+      - rsyslog
+    cpus: 2
+    mem_limit: 150M
 
   
   ############################################ Rsyslog server ############################################
@@ -20,8 +22,8 @@ services:
     container_name: askjeevessecbot-rsyslog
     restart: unless-stopped
     build:
-      context: .
-      dockerfile: docker/Dockerfile-rsyslog
+      context: Rsyslog
+      dockerfile: Dockerfile-rsyslog
     ports:
       - 1514:1514/udp
     networks: 
@@ -38,11 +40,14 @@ services:
     container_name: askjeevessecbot-mysql
     restart: unless-stopped
     image: mysql:5.7
+    #image: mysql:8.0
     environment: 
       MYSQL_ROOT_PASSWORD: "toor"
       MYSQL_DATABASE: "askjeevessecbot"
       MYSQL_USER: "askjeevessecbot"
       MYSQL_PASSWORD: "changeme"
+      MYSQL_ROOT_HOST: '%'
+    networks:
       - kafka-backend
     volumes: 
       - mysql-db:/var/lib/mysql
@@ -51,6 +56,7 @@ services:
     cpus: 1
     mem_limit: 150M
 
+    
   ############################################ Zookeeper ############################################
   zookeeper:
     container_name: askjeevessecbot-zookeeper
@@ -72,6 +78,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:39092,EXTERNAL_NETWORK://kafka.hackinglab.local:29092
+      #KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL_NETWORK:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:39092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -92,58 +100,8 @@ services:
     cpus: 2
     mem_limit: 1G
 
-  ############################################ Schema registry ############################################
-  schema-registry:
-    container_name: askjeevessecbot-schema-registry
-    restart: unless-stopped
-    image: "confluentinc/cp-schema-registry:5.4.1"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
-    networks: 
-      - kafka-backend
-    depends_on:
-      - zookeeper
-      - kafka
-    cpus: 1
-    mem_limit: 300M
-  
-  ############################################ KSQL server ############################################
-  ksql-server:
-    container_name: askjeevessecbot-ksql-server
-    restart: unless-stopped
-    image: "confluentinc/cp-ksql-server:5.4.1"
-    networks: 
-      - kafka-backend
-    environment:
-      KSQL_BOOTSTRAP_SERVERS: kafka:39092
-      KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-    depends_on:
-      - kafka
-      - schema-registry
-    cpus: 2
-    mem_limit: 500M
-
-  ############################################ KSQL client ############################################
-  ksql-cli:
-    container_name: askjeevessecbot-ksql-cli
-    restart: unless-stopped
-    image: confluentinc/cp-ksql-cli:5.4.1
-    environment:
-      KSQL_HEAP_OPTS: -Xmx500m
-    entrypoint: /bin/sh
-    tty: true
-    networks:
-      - kafka-backend
-    depends_on:
-      - ksql-server
-    cpus: 1
-    mem_limit: 500M
-
-  
-
-  # ############################################ KSQL REST proxy ############################################
+volumes:
+  mysql-db:
 
 networks: 
   kafka-backend:

@@ -1,0 +1,43 @@
+FROM ubuntu:18.04
+
+# Create user
+RUN useradd -ms /bin/bash app
+
+# Install golang
+RUN apt-get update -y && apt-get install wget software-properties-common apt-transport-https -y
+RUN cd /tmp && wget https://dl.google.com/go/go1.13.linux-amd64.tar.gz
+RUN cd /tmp && tar -C /usr/local -xzf go1.13.linux-amd64.tar.gz
+RUN mkdir -p /go/src/app
+
+# Install LibKafka
+RUN wget -qO - https://packages.confluent.io/deb/5.4/archive.key | apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.4 stable main"
+RUN apt-get install pkg-config librdkafka-dev -y
+RUN dpkg -l | grep kafka
+
+# Set working dir and copy app
+WORKDIR /go/src/app
+COPY . /go/src/app/
+ 
+# Downlaod GOLANG packages
+RUN /usr/local/go/bin/go mod download
+
+# Compile app
+RUN GOOS=linux /usr/local/go/bin/go build -o AskJeevesSecBot main.go
+
+# Make app directory
+RUN mkdir -p /app/config && mkdir -p /app/data
+WORKDIR /app
+
+# Copy binary from abive
+RUN cp /go/src/app/AskJeevesSecBot /app/AskJeevesSecBot
+
+# Copy config and GeoIP database
+COPY config/config.yaml /app/config/config.yaml
+
+# Set perms to user
+RUN chown app:app -R /app
+
+USER app
+
+CMD ["/app/AskJeevesSecBot"]  

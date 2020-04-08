@@ -6,7 +6,7 @@ class Config(object):
     GOOGLE_MAPS_BASE_URL = "https://maps.googleapis.com/maps/api/staticmap"
     GOOGLE_MAPS_ZOOM = 10
     GOOGLE_MAPS_SIZE = "400x400"
-    GOOGLE_MAPS_SIZE_API_KEY = "abc123"
+    GOOGLE_MAPS_SIZE_API_KEY = "google_maps_api_key_here"
 
     SLACK_TOKEN = "abc123"
     SLACK_SGNING_SECRET = "abc123"

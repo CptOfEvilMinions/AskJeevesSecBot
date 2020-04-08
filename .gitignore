@@ -6,5 +6,5 @@ ButlingButler/venv
 ButlingButler/config/config.py
 __pycache__
 AskJeeves/AskJeevesSecBot
-AskJeeves/data/GeoLite2-City.mmdb
+AskJeeves/data/*
 AskJeeves/config/config.yaml

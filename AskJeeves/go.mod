@@ -10,5 +10,6 @@ require (
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/slack-go/slack v0.6.3
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
+	gopkg.in/confluentinc/confluent-kafka-go.v1 v1.1.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8
 )

@@ -8,13 +8,13 @@ RUN apt-get install rsyslog rsyslog-kafka -y
 RUN rm /etc/rsyslog.d/50-default.conf 
 
 # Main rsyslog config
-COPY conf/rsyslog-server/rsyslog.conf /etc/rsyslog.conf
+COPY rsyslog.conf /etc/rsyslog.conf
 
 # Input config
-COPY conf/rsyslog-server/10-input-udp.conf /etc/rsyslog.d/10-input-udp.conf
+COPY 10-input-udp.conf /etc/rsyslog.d/10-input-udp.conf
 
 # Kafka configs
-COPY conf/rsyslog-server/30-output-kafka.conf /etc/rsyslog.d/30-output-kafka.conf
+COPY 30-output-kafka.conf /etc/rsyslog.d/30-output-kafka.conf
 
 # Expose port
 EXPOSE 1514/udp
