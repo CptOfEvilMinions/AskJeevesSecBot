@@ -4,6 +4,9 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 
 * [Blog post here](https://holdmybeersecurity.com/2020/04/08/reducing-your-alert-fatigue-with-askjeevesseecbot/)
 
+## Install docs
+* [Install/Setup](docs/install_setup.md)
+
 ## User prompt
 ![VPN prompt](.img/prompt.png)
 
