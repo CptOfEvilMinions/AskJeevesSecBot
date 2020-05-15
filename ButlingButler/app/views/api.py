@@ -4,6 +4,7 @@ from app.helpers.slack import verify_slack_request
 from flask_jwt_extended import jwt_required
 from app.model import db,UserResponse
 from flask import current_app as app
+from datetime import datetime
 import json
 
 
@@ -26,8 +27,10 @@ def get_google_map():
 @api.route('/', methods=['POST'])
 @api.route('/UserResponse', methods=['POST'])
 def user_response():
+    print (f"[*] - {datetime.now()} - Received POST request")
     if request.headers.get("X-Slack-Signature") and request.headers.get("X-Slack-Request-Timestamp") and request.headers["Content-Type"] == "application/x-www-form-urlencoded":
         request_body = request.get_data()
+        print (f"[*] - {datetime.now()} - Received POST request and passed Slack verification - {request_body}")
         slack_signature = request.headers.get('X-Slack-Signature', None)
         slack_request_timestamp = request.headers.get('X-Slack-Request-Timestamp', None)
         if verify_slack_request(slack_signature, slack_request_timestamp, request_body):

@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 # Install
-RUN apt-get update -y && apt-get install python3-minimal python3-pip libmysqlclient-dev -y
+RUN apt-get update -y && apt-get install python3-minimal python3-pip libmysqlclient-dev libpq-dev -y
 
 # Createuser
 RUN useradd -ms /bin/bash app
@@ -14,13 +14,12 @@ COPY requirements.txt /ButlingButler/requirements.txt
 RUN pip3 install -r /ButlingButler/requirements.txt
 
 COPY app /ButlingButler/app
-COPY config /ButlingButler/config
+COPY config/config.py /ButlingButler/config/config.py
 COPY run_server.py /ButlingButler/run_server.py
 
 # Change perms
 RUN chown app:app -R /ButlingButler
 
-EXPOSE 5000
 WORKDIR /ButlingButler
 USER app
 

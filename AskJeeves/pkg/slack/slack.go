@@ -19,6 +19,7 @@ func InitConnector(cfg *config.Config) *slack.Client {
 	return slack.New(cfg.Slack.Token)
 }
 
+
 // generateUserInformationBlocks input: vpnEntry about login, location, and vpnHash
 // generateUserInformationBlocks output: Return Slack information text block based on VPN login
 func generateUserInformationBlocks(userVPNLog database.UserVPNLog) []*slack.TextBlockObject {
@@ -35,6 +36,7 @@ func generateUserInformationBlocks(userVPNLog database.UserVPNLog) []*slack.Text
 	return userInformationBlocks
 }
 
+
 // SendUserMessage input: config, slack connector, vpnEntry, location, and vpnHash
 // SendUserMessage output: Return error if there is one
 // https://godoc.org/github.com/nlopes/slack#Client.SendMessage
@@ -49,7 +51,7 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, userVPNLog data
 
 	// Google Map static image
 	imageText := slack.NewTextBlockObject("plain_text", "Location", false, false)
-	imageBlock := slack.NewImageBlock(fmt.Sprintf("https://hackinglab.beer/askjeeves/GoogleMaps?location=%s", url.QueryEscape(userVPNLog.Location)), "Marker", "test", imageText)
+	imageBlock := slack.NewImageBlock(fmt.Sprintf("%s/askjeeves/GoogleMaps?location=%s", cfg.ButlingButler.URL, url.QueryEscape(userVPNLog.Location)), "Marker", "test", imageText)
 
 	// Generate user information fields
 	userInformationBlocks := generateUserInformationBlocks(userVPNLog)
@@ -79,10 +81,15 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, userVPNLog data
 		unauthorizedActionBlock,
 	)
 
+	fmt.Println("nope7")
+
 	slackUsername := "@" + userVPNLog.Username // Prepend username with @
 
 	if _, _, err := slackAPI.PostMessage(slackUsername, slack.MsgOptionText("", false), params); err != nil {
 		return fmt.Errorf("failed to post message: %s", err)
 	}
+
+	fmt.Println("nope8")
+	
 	return nil
 }

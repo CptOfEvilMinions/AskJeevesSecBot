@@ -3,7 +3,7 @@ import requests
 
 def get_static_map(location):
     """ 
-    Input: Takes in a location ins tring format
+    Input: Takes in a location in string format
     Output: Returns image from Google Map static lookup
     """
     # google map format string

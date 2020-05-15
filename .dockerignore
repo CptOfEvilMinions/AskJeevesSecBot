@@ -6,3 +6,4 @@ AskJeeves/AskJeevesSecBot
 AskJeeves/data/*
 __pycache__/
 venv/
+backups/

@@ -12,8 +12,18 @@ def is_docker():
         os.path.isfile(path) and any('docker' in line for line in open(path))
     )
 
+"""
+Detect if running in Heroku
+"""
+def is_heroku():
+    if os.environ.get('ON_HEROKU') == "1":
+        return True
+    return False
+
 CONFIG = None
-if is_docker() == True:
+if is_heroku() == True:
+    CONFIG = config.HerokuConfig
+elif is_docker() == True:
     CONFIG = config.DockerConfig
 else:
     CONFIG = config.DevelopmentConfig

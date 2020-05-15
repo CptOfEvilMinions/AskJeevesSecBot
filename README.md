@@ -27,15 +27,20 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * Memory: 1.5GBs
 * HDD: 5GBs
 
+## To do
+* Fix if an IP address has a GeoIP location for its country but not a city it will crash the application
+* Optimize the AskJeeves function that does the MySQL lookup for old entries
+* Use Heroku secrets manager
+* Use Docker secrets or Vault to store secrets instead of config files with hard values
+* Created automation to create API keys, setting up env variables, and etc - shorter install/setup doc
+* Add a mechanism to pull down a new GeoIP database on an interval
+
 ## References
 ### Rsyslog
 * [Rsyslog Expressions](https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html)
 * [Rsyslog field()](https://www.rsyslog.com/doc/v8-stable/rainerscript/functions/rs-field.html)
 * [23.8. STRUCTURED LOGGING WITH RSYSLOG](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/s1-structured_logging_with_rsyslog)
 * [Index JSON Messages over Syslog](https://sematext.com/docs/logs/json-messages-over-syslog/)
-* []()
-* []()
-* []()
 
 ### Golang
 * [Format a Go string without printing?](https://stackoverflow.com/questions/11123865/format-a-go-string-without-printing)
@@ -82,10 +87,6 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [IP to City Lite database](https://db-ip.com/db/download/ip-to-city-lite)
 * [Automatic Updates for GeoIP2 and GeoIP Legacy Databases](https://dev.maxmind.com/geoip/geoipupdate/)
 * [Part 1) Download a File (from a URL)](https://golangcode.com/download-a-file-from-a-url/)
-* []()
-* []()
-* []()
-* []()
 
 ### MySQL 
 * [Golang MySQL Tutorial](https://tutorialedge.net/golang/golang-mysql-tutorial/)
@@ -97,9 +98,6 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [GORM - Query](http://gorm.io/docs/query.html)
 * [Update All Fields](https://jinzhu.me/gorm/crud.html#query)
 * [Building RESTful APIs in Golang](https://martinheinz.dev/blog/8)
-* []()
-* []()
-* []()
 
 ### Google Maps
 * [Golang : Convert []byte to image](https://www.socketloop.com/tutorials/golang-convert-byte-to-image)
@@ -108,22 +106,19 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 * [Get an API Key](https://developers.google.com/places/web-service/get-api-key)
 * [Pulling Google’s location image from Places API](https://forum.bubble.io/t/pulling-googles-location-image-from-places-api/1549)
 * [Python | Get a google map image of specified location using Google Static Maps API](https://tutorialspoint.dev/language/python/python-get-google-map-image-specified-location-using-google-static-maps-api)
-* []()
-* []()
-* []()
-* []()
 
 ### Kafka
 * [KSQL Problem while - print <topic> from beginning #2386](https://github.com/confluentinc/ksql/issues/2386)
-* []()
-* []()
-* []()
 
 ### Slack
 * [slack-go/slack - channels.go](https://github.com/slack-go/slack/blob/master/channels.go)
 * [Github issue 604 - failed to post message with SectionBlock: invalid_blocks](https://github.com/slack-go/slack/issues/603)
 * [nlopes/slack - Sourccegraph](https://sourcegraph.com/github.com/nlopes/slack@7c3a24ccf8f5053022381bde95e29cf882700285/-/blob/block.go#L61)
 * [package slack](https://pkg.go.dev/github.com/slack-go/slack?tab=doc#AttachmentAction)
+
+
+### Python
+* [Making Use of Environment Variables in Python](https://www.nylas.com/blog/making-use-of-environment-variables-in-python/)
 * []()
 * []()
 * []()

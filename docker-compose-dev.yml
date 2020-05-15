@@ -13,15 +13,14 @@ services:
   #     - kafka
   #   cpus: 2
   #   mem_limit: 150M
-
   
   ############################################ Rsyslog server ############################################
   rsyslog:
     container_name: askjeevessecbot-rsyslog
     restart: unless-stopped
     build:
-      context: .
-      dockerfile: docker/Dockerfile-rsyslog
+      context: Rsyslog
+      dockerfile: Dockerfile-rsyslog
     ports:
       - 1514:1514/udp
     networks: 
@@ -56,7 +55,6 @@ services:
       - kafka
     cpus: 1
     mem_limit: 150M
-
     
   ############################################ Zookeeper ############################################
   zookeeper:

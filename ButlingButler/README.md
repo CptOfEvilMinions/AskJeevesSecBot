@@ -2,7 +2,48 @@
 
 Do to the way the Slack API is designed it will `PUSH` the user's response to a URL endpoint. This means that you need your machine 
 
+## Deploy to Heroku
+### Init Heroku
+1. `brew tap heroku/brew && brew install heroku`
+1. `heroku autocomplete`
+1. `printf "$(heroku autocomplete:script zsh)" >> ~/.zshrc; source ~/.zshrc`
+1. `heroku plugins:install @heroku-cli/plugin-manifest`
+
+### Create Heroku app
+1. `cd AskJeevesSecBot/ButlingButler`
+1. `heroku create butlingbutler`
+
+### Create Postgres database
+1. `heroku addons:create heroku-postgresql:database`
+
+### Add env vars
+1. `heroku config:set ASKJEEVES_USERNAME=<ASKJEEVES_USERNAME>`
+1. `heroku config:set ASKJEEVES_PASSWORD=<ASKJEEVES_PASSWORD>`
+1. `heroku config:set GOOGLE_MAPS_SIZE_API_KEY=<GOOGLE_MAPS_SIZE_API_KEY>`
+1. `heroku config:set SLACK_TOKEN=<SLACK_TOKEN>`
+1. `heroku config:set SLACK_SGNING_SECRET=<SLACK_SGNING_SECRET>`
+
+### Push Docker image to Heroku
+1. `heroku container:login`
+1. `heroku container:push web --app butlingbutler`
+1. `heroku container:release web --app=butlingbutler`
+1. `heroku open --app butlingbutler` 
+
+## Helpful Heroku commands
+1. `heroku logs --tail --app=butlingbutler`
+1. `heroku apps:destroy butlingbutler --confirm butlingbutler`
+
 ## References
+### Heroku
+* [Heroku Download and install](https://devcenter.heroku.com/articles/heroku-cli)
+* [Docker Up and Running 15: Deploy Docker on Heroku](https://www.youtube.com/watch?v=tTwGdUTR5h8)
+* [How do I delete/destroy an app on Heroku?](https://help.heroku.com/LGKL6LTN/how-do-i-delete-destroy-an-app-on-heroku)
+* [Provisioning Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql#provisioning-heroku-postgres)
+* [Using the Heroku CLI to set env vars](https://devcenter.heroku.com/articles/config-vars#using-the-heroku-cli)
+* [How do I use the $PORT environment variable in container based apps?](https://help.heroku.com/PPBPA231/how-do-i-use-the-port-environment-variable-in-container-based-apps)
+* [Container Registry & Runtime (Docker Deploys)](https://devcenter.heroku.com/articles/container-registry-and-runtime)
+* [Heroku Logging](https://devcenter.heroku.com/articles/logging#view-logs)
+
 ### Flask
 * [How to return a 404 error in Flask application](https://code-maven.com/flask-return-404)
 * [Implementing a RESTful Web API with Python & Flask](http://blog.luisrei.com/articles/flaskrest.html)
@@ -23,15 +64,10 @@ Do to the way the Slack API is designed it will `PUSH` the user's response to a 
 * [Github - vimalloc/flask-jwt-extended](https://github.com/vimalloc/flask-jwt-extended/blob/master/examples/database_blacklist/app.py)
 * [Full-stack tutorial — 3: Flask + jwt](https://medium.com/@riken.mehta/full-stack-tutorial-3-flask-jwt-e759d2ee5727)
 * [Simple JWT Authentication with Flask-JWT](https://blog.tecladocode.com/simple-jwt-authentication-with-flask-jwt/)
-* []()
-* []()
-* []()
 
 ### Database things
 * [mysql_config not found when installing mysqldb python interface](https://stackoverflow.com/questions/7475223/mysql-config-not-found-when-installing-mysqldb-python-interface)
-* []()
-* []()
-* []()
+* [ImportError: No module named psycopg2](https://www.odoo.com/forum/help-1/question/importerror-no-module-named-psycopg2-39160)
 
 ### Slack
 * [Slackmojis](https://slackmojis.com/categories/7-party-parrot-emojis)
@@ -47,6 +83,3 @@ Do to the way the Slack API is designed it will `PUSH` the user's response to a 
 * [Slack Interactive Messages: POST request payload has an unexpected format](https://stackoverflow.com/questions/52959991/slack-interactive-messages-post-request-payload-has-an-unexpected-format)
 * [Flask - How do I read the raw body in a POST request when the content type is “application/x-www-form-urlencoded”](https://stackoverflow.com/questions/17640687/flask-how-do-i-read-the-raw-body-in-a-post-request-when-the-content-type-is-a)
 * [Get the data received in a Flask request](https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request)
-* []()
-* []()
-* []()

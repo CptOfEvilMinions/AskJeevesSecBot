@@ -5,37 +5,40 @@ services:
     container_name: 'ButlingButler-app'
     restart: unless-stopped
     build: .
+    environment:
+      - ON_HEROKU=1
+      - ASKJEEVES_USERNAME=askjeeves
+      - ASKJEEVES_PASSWORD=askjeeves
+      - DATABASE_URL=postgres://butlingbutler:changeme@postgres:5432/butlingbutler
+      - PORT=5000
     networks: 
       - default
       - backend
     ports: 
       - 5000:5000
     depends_on:
-      - mysql
+      - postgres
     cpus: 1
     mem_limit: 150M
 
   ############################################ MySQL ############################################
-  mysql:
-    container_name: ButlingButler-mysql
+  postgres:
+    container_name: ButlingButler-postgres
     restart: unless-stopped
-    image: mysql:5.7
+    image: postgres:9.6 
     environment: 
-      MYSQL_ROOT_PASSWORD: "toor"
-      MYSQL_DATABASE: "butlingbutler"
-      MYSQL_USER: "butlingbutler"
-      MYSQL_PASSWORD: "changeme"
-      MYSQL_ROOT_HOST: '%'
+      POSTGRES_DB: "butlingbutler"
+      POSTGRES_USER: "butlingbutler"
+      POSTGRES_PASSWORD: "changeme"
     networks:
       - backend
     volumes: 
-      - mysql-db:/var/lib/mysql
+      - postgres-db:/var/lib/postgresql/data
     cpus: 1
     mem_limit: 150M
-
 
 networks: 
   backend:
   
 volumes: 
-  mysql-db:
+  postgres-db:

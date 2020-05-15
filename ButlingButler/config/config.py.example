@@ -42,17 +42,16 @@ class HerokuConfig(Config):
     # Set bind
     HOST = "0.0.0.0"
 
+    # Set port for flask to listen on
+    PORT = os.environ.get('PORT')
+    print (f"Heroku port: {PORT}")
+
     # secret key
     SECRET_KEY = ''.join(random.sample(string.ascii_lowercase, 20))
 
-    # MySQL connection settings
-    MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE')
-    MYSQL_USERNAME = os.environ.get('MYSQL_USERNAME')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD')
-    MYSQL_HOSTNAME = os.environ.get('MYSQL_HOSTNAME')
-
     # SQLalchemy
-    SQLALCHEMY_DATABASE_URI = f"mysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOSTNAME}/{MYSQL_DATABASE}"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    print (SQLALCHEMY_DATABASE_URI)
 
     # Google API key
     GOOGLE_MAPS_SIZE_API_KEY = os.environ.get('GOOGLE_MAPS_SIZE_API_KEY')

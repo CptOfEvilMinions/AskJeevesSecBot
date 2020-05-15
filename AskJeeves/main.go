@@ -109,7 +109,6 @@ func main() {
 					fmt.Println(err.Error())
 					log.Fatalln(err)
 				}
-
 			}
 
 		case kafka.PartitionEOF:

@@ -1,14 +1,14 @@
 Slack:
   token: "slack_token_here"
 kafka:
-  hostname: "kafka"
-  port: 39092
+  hostname: "docker_ip_addr"
+  port: 29092
   groupId: 1
   offset: "latest"
   consumer_topic: "vpn-log-raw"
   poll_interval: 3
 mysql:
-  hostname: "mysql"
+  hostname: "docker_ip_addr"
   port: 3306
   protocol: "tcp"
   database: "askjeevessecbot"
