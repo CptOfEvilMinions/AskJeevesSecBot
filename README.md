@@ -16,6 +16,9 @@ AskJeevesSecBot is golang project that has a rule engine that triggers Slack not
 ## User denied
 ![VPN prompt](.img/unauthorized.png)
 
+## TheHive ticket
+![TheHive ticket](.img/thehive_ticket.png)
+
 
 ## Diagram
 <p align="center">

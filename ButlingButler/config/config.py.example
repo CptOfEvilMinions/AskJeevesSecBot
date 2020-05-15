@@ -51,7 +51,6 @@ class HerokuConfig(Config):
 
     # SQLalchemy
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    print (SQLALCHEMY_DATABASE_URI)
 
     # Google API key
     GOOGLE_MAPS_SIZE_API_KEY = os.environ.get('GOOGLE_MAPS_SIZE_API_KEY')

@@ -81,15 +81,11 @@ func SendUserMessage(cfg *config.Config, slackAPI *slack.Client, userVPNLog data
 		unauthorizedActionBlock,
 	)
 
-	fmt.Println("nope7")
-
 	slackUsername := "@" + userVPNLog.Username // Prepend username with @
 
 	if _, _, err := slackAPI.PostMessage(slackUsername, slack.MsgOptionText("", false), params); err != nil {
 		return fmt.Errorf("failed to post message: %s", err)
 	}
-
-	fmt.Println("nope8")
 	
 	return nil
 }

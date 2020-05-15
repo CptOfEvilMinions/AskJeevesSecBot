@@ -24,7 +24,7 @@ ButlingButler:
   url: "http://butling_butler_url"
   username: "butling_butler_user_here"
   password: "butling_butler_password_here"
-  interval: 300 # 5 minutes
+  interval: 10 # 5 minutes
 theHive:
   url: "https://thehive.local"
   api_key: "the_hive_key_here"

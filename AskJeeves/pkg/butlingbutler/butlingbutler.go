@@ -125,10 +125,8 @@ func UpdateDatabaseEntries(JWTtoken string, cfg *config.Config, db *gorm.DB) {
 			//db.Where("vpn_hash = ? AND event_id = ?", userResponse.VPNhash, userResponse.EventID).First(&userVPNLog)
 			db.Where("vpn_hash = ?", userResponse.VPNhash).First(&userVPNLog)
 
-			fmt.Println("hello0")
 			fmt.Println(userResponse.VPNhash)
 			fmt.Println(userResponse.EventID)
-			fmt.Println("hello0")
 
 			// Update entry
 			// True: Legit login

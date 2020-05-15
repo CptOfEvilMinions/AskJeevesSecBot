@@ -59,6 +59,11 @@
 1. `sed -i 's/slack_token_here/<SLACK TOKEN>/g' ../AskJeeves/config/config.yaml`
 1. `heroku config:set SLACK_TOKEN=<SLACK_TOKEN>`
 
+### Add Interactive components redirect URL
+1. Select "Basic information" on the left
+1. Select "Interactive components" under "Add features and functionality" 
+1. Enter `<Heroku  URL from above>/askjeeves`
+
 ### Set Slack Signing Secret
 1. Select "Basic information" on the left
 1. Copy "Signing secret"

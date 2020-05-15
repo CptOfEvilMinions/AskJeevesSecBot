@@ -29,7 +29,6 @@ func unzipGeoIPdatabase(src string, dst string) error {
 		return err
 	}
 	defer gzr.Close()
-	fmt.Println("hello1")
 
 	// Create TAR reader
 	tr := tar.NewReader(gzr)

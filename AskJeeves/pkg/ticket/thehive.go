@@ -36,6 +36,8 @@ func CreateTheHiveCase(cfg *config.Config, userVPNLog database.UserVPNLog) (int,
 		fmt.Sprintf("**References**:\n\n") +
 		fmt.Sprintf("**Remediation/notes**:\n\n\n")
 
+	fmt.Println(description)
+
 	// Create HTTP client
 	hc := http.Client{}
 
